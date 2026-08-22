@@ -1,0 +1,74 @@
+{
+  "deeplinks": [
+    {
+      "rank": 1,
+      "destination_page": "ExampleInboxPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/inbox?folder={folder}&view={view}"
+      },
+      "valid_user_types": { "allowed": ["etu"] },
+      "label": ["Marketing (OneLink)", "Chat/Voice bot"],
+      "query_parameters": [
+        {
+          "name": "folder",
+          "requirement": "conditional",
+          "allowed_values_in_code": ["alpha", "beta", "gamma"]
+        },
+        {
+          "name": "view",
+          "requirement": "conditional",
+          "allowed_values_in_code": ["list", "grid", "compact"]
+        },
+        { "name": "refId", "requirement": "optional" }
+      ]
+    },
+    {
+      "rank": 2,
+      "destination_page": "ExampleCatalogPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/catalog?groupCode={groupCode}&itemCode={itemCode}"
+      },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Marketing (OneLink)", "Push Noti"],
+      "query_parameters": [
+        {
+          "name": "groupCode",
+          "requirement": "required",
+          "allowed_values_in_code": ["ALPHA", "BETA"]
+        },
+        { "name": "itemCode", "requirement": "required" },
+        { "name": "utm_campaign", "requirement": "optional" }
+      ]
+    },
+    {
+      "rank": 3,
+      "destination_page": "ExampleItemPage",
+      "structure": { "path_pattern": "demoapp://deeplink/catalog/item/{itemId}" },
+      "valid_user_types": { "allowed": ["etu", "prospect"] },
+      "label": ["Chat/Voice bot"],
+      "query_parameters": []
+    },
+    {
+      "rank": 4,
+      "destination_page": "ExampleHomePage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/home | demoapp://deeplink/landing"
+      },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Marketing (OneLink)"],
+      "query_parameters": []
+    },
+    {
+      "rank": 5,
+      "destination_page": "ExampleSettingsPage",
+      "structure": { "path_pattern": "demoapp://deeplink/settings" },
+      "valid_user_types": { "allowed": ["etu"] },
+      "label": ["Not referenced by any channel source"],
+      "query_parameters": []
+    }
+  ]
+}

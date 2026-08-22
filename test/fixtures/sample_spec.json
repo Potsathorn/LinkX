@@ -1,0 +1,191 @@
+{
+  "deeplinks": [
+    {
+      "rank": 1,
+      "destination_page": "InboxConnectorPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/inbox?folder={folder}&view={view}"
+      },
+      "valid_user_types": { "allowed": ["etu"] },
+      "label": ["Marketing (OneLink)", "Chat/Voice bot"],
+      "query_parameters": [
+        {
+          "name": "folder",
+          "requirement": "conditional",
+          "allowed_values_in_code": ["alpha", "beta", "gamma"]
+        },
+        {
+          "name": "view",
+          "requirement": "conditional",
+          "allowed_values_in_code": ["list", "grid", "compact", "detail", "more"]
+        },
+        {
+          "name": "mode",
+          "requirement": "optional",
+          "allowed_values_in_code": ["fast", "slow"]
+        },
+        { "name": "refId", "requirement": "optional" },
+        { "name": "traceId", "requirement": "optional" },
+        { "name": "note", "requirement": "optional" }
+      ]
+    },
+    {
+      "rank": 2,
+      "destination_page": "CatalogDetailConnectorPage, BundleConnectorPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/catalog?groupCode={groupCode}&itemCode={itemCode}&variantCode={variantCode}"
+      },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Marketing (OneLink)", "Chat/Voice bot", "Push Noti"],
+      "query_parameters": [
+        {
+          "name": "groupCode",
+          "requirement": "required",
+          "allowed_values_in_code": ["ALPHA", "BETA", "GAMMA"]
+        },
+        { "name": "itemCode", "requirement": "required" },
+        { "name": "variantCode", "requirement": "required" },
+        { "name": "utm_medium", "requirement": "optional" },
+        { "name": "utm_campaign", "requirement": "optional" },
+        { "name": "refA", "requirement": "optional" },
+        { "name": "refB", "requirement": "optional" }
+      ]
+    },
+    {
+      "rank": 3,
+      "destination_page": "OfferDetailPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/offer-detail?offerCode={offerCode}"
+      },
+      "valid_user_types": { "allowed": ["etu", "prospect"] },
+      "label": ["Marketing (OneLink)"],
+      "query_parameters": [
+        { "name": "offerCode", "requirement": "required" }
+      ]
+    },
+    {
+      "rank": 4,
+      "destination_page": "ListingConnectorPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/listing/catalog?groupCode={groupCode}&tierCode={tierCode}&orgCode={orgCode}"
+      },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Marketing (OneLink)", "Chat/Voice bot"],
+      "query_parameters": [
+        {
+          "name": "groupCode",
+          "requirement": "required",
+          "allowed_values_in_code": ["ALPHA", "BETA", "GAMMA"]
+        },
+        {
+          "name": "tierCode",
+          "requirement": "required",
+          "allowed_values_in_code": ["BASIC", "PLUS"]
+        },
+        {
+          "name": "orgCode",
+          "requirement": "required",
+          "allowed_values_in_code": ["ORG1", "ORG2"]
+        },
+        { "name": "itemCode", "requirement": "optional" },
+        { "name": "utm_medium", "requirement": "optional" }
+      ]
+    },
+    {
+      "rank": 5,
+      "destination_page": "HomePage / VisitorHomePage",
+      "structure": { "path_pattern": "demoapp://deeplink/home" },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Marketing (OneLink)", "Chat/Voice bot"],
+      "query_parameters": [
+        { "name": "campaignCode", "requirement": "optional" }
+      ]
+    },
+    {
+      "rank": 6,
+      "destination_page": "FeedPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/feed-list | demoapp://deeplink/feed"
+      },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Marketing (OneLink)", "Chat/Voice bot"],
+      "query_parameters": []
+    },
+    {
+      "rank": 7,
+      "destination_page": "PreferenceChannelPage",
+      "structure": { "path_pattern": "demoapp://deeplink/preferences" },
+      "valid_user_types": { "allowed": ["etu"] },
+      "label": ["Marketing (OneLink)"],
+      "query_parameters": []
+    },
+    {
+      "rank": 8,
+      "destination_page": "InboxItemPage",
+      "structure": { "path_pattern": "demoapp://deeplink/inbox/{itemId}" },
+      "valid_user_types": { "allowed": ["etu"] },
+      "label": ["Marketing (OneLink)", "Chat/Voice bot"],
+      "query_parameters": []
+    },
+    {
+      "rank": 9,
+      "destination_page": "ProfileAddressPage",
+      "structure": { "path_pattern": "demoapp://deeplink/profile/addresses" },
+      "valid_user_types": { "allowed": ["etu"] },
+      "label": ["Marketing (OneLink)", "Chat/Voice bot"],
+      "query_parameters": []
+    },
+    {
+      "rank": 10,
+      "destination_page": "ResumeTaskConnectorPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/resume-task?taskId={taskId}"
+      },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Marketing (OneLink)", "Push Noti"],
+      "query_parameters": [
+        { "name": "taskId", "requirement": "required" }
+      ]
+    },
+    {
+      "rank": 11,
+      "destination_page": "ItemDetailConnectorPage",
+      "structure": {
+        "path_pattern": "demoapp://deeplink/catalog/item/{cmsId|itemCode}"
+      },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Chat/Voice bot"],
+      "query_parameters": []
+    },
+    {
+      "rank": 12,
+      "destination_page": "SettingsPage",
+      "structure": { "path_pattern": "demoapp://deeplink/settings" },
+      "valid_user_types": { "allowed": ["etu"] },
+      "label": ["Not referenced by any channel source"],
+      "query_parameters": []
+    },
+    {
+      "rank": 12,
+      "destination_page": "StatusTrackingPage",
+      "structure": { "path_pattern": "demoapp://deeplink/status-tracking" },
+      "valid_user_types": {
+        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+      },
+      "label": ["Chat/Voice bot", "Push Noti"],
+      "query_parameters": []
+    }
+  ]
+}
