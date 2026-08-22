@@ -49,6 +49,17 @@ The app is built for one user: a QA tester firing CardX deeplinks at a device.
 The UI is tuned for **find → fill → fire**, and everything else is either removed
 or moved behind a tap.
 
+**Home** — the landing tab, three sections deep:
+
+* **Launcher** — a field for any link at all, typed or pasted. It is not tied to
+  the spec, so a OneLink, a raw deeplink or a URL from a ticket can be fired at
+  the device directly with Launch, QR or Share. A link with no scheme is
+  rejected before the buttons enable.
+* **Recent** — the last five links you acted on, newest first, each one tappable
+  to re-launch. The whole section is hidden until there is history.
+* **Top links** — the rank 1–3 entries from the spec, opening straight into the
+  generator.
+
 **Catalogue** — a ranked list, a search field, and a filter icon. Search covers
 page name, path, parameter names and allowed values. Channel and user-type
 filters live in a bottom sheet (`/filters`) so they cost no permanent space; a
@@ -165,18 +176,37 @@ you look at the output:
 | Route | Screen |
 |-------|--------|
 | `/splash` | boot animation, 1s (initial location) |
+| `/home` | launcher, recent and top links (landing tab) |
 | `/catalogue` | ranked deeplink list |
 | `/generator` | builder for the selected entry |
 | `/history` | activity log |
 | `/filters` | channel and user-type filter sheet |
 | `/qr` | QR bottom sheet |
 
-The three tabs are a `StatefulShellRoute.indexedStack`, so a half-filled
+The four tabs are a `StatefulShellRoute.indexedStack`, so a half-filled
 generator form survives a trip to the catalogue. `/qr` is pinned to the root
 navigator via `parentNavigatorKey`, otherwise the sheet would be clipped inside
 the shell branch instead of covering the navigation bar.
 
 ---
+
+## Ad-hoc links
+
+The Home launcher builds a `GeneratedLink.adHoc`, which carries an empty
+`entryId` and the destination page `Ad-hoc link`. That single distinction is
+what lets one code path serve both worlds:
+
+* Usage counters ignore an empty entry id, so pasted links never distort the
+  spec's own ranking.
+* History records them like any other link, and re-opening one from History
+  sends it back to the Home launcher rather than the generator, because there is
+  no spec entry to rebuild a form from.
+
+Every action — launch, copy, share, QR — runs through
+[LinkActionRunner](lib/services/link_action_runner.dart), which owns the history
+and usage bookkeeping. The generator, the Home launcher and the QR sheet all
+delegate to it, so the three screens cannot drift apart on what counts as a
+logged action.
 
 ## Theme — five colours, one accent
 

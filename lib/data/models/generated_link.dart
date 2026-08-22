@@ -23,6 +23,20 @@ class GeneratedLink {
   final List<LinkParameter> parameters;
   final UserType? testedUserType;
 
+  static const String adHocId = '';
+  static const String adHocPage = 'Ad-hoc link';
+
+  factory GeneratedLink.adHoc(String url) => GeneratedLink(
+        url: url.trim(),
+        entryId: adHocId,
+        destinationPage: adHocPage,
+        rank: 0,
+        pathPattern: url.trim(),
+        parameters: const <LinkParameter>[],
+      );
+
+  bool get isAdHoc => entryId.isEmpty;
+
   Map<String, String> get appliedParameters => <String, String>{
         for (final LinkParameter p in parameters)
           if (p.isIncluded) p.name: p.trimmedValue,

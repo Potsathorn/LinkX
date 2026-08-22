@@ -239,8 +239,9 @@ class _ActionBar extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: OutlinedButton.icon(
-                  onPressed:
-                      enabled ? () => context.push(AppRoute.qr.path) : null,
+                  onPressed: enabled
+                      ? () => context.push(AppRoute.qr.path, extra: vm.link)
+                      : null,
                   icon: const Icon(Icons.qr_code_2, size: 18),
                   label: const Text('QR'),
                 ),

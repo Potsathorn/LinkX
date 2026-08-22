@@ -30,6 +30,11 @@ class AppShell extends StatelessWidget {
           onDestinationSelected: _onDestinationSelected,
           destinations: <Widget>[
             const NavigationDestination(
+              icon: Icon(Icons.rocket_launch_outlined),
+              selectedIcon: Icon(Icons.rocket_launch),
+              label: 'Home',
+            ),
+            const NavigationDestination(
               icon: Icon(Icons.dashboard_customize_outlined),
               selectedIcon: Icon(Icons.dashboard_customize),
               label: 'Catalogue',

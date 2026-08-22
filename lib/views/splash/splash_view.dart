@@ -37,7 +37,7 @@ class _SplashViewState extends State<SplashView>
     _left = true;
 
     final bool prompt = context.read<SpecViewModel>().shouldPromptForSpec;
-    context.go(prompt ? AppRoute.setup.path : AppRoute.catalogue.path);
+    context.go(prompt ? AppRoute.setup.path : AppRoute.home.path);
   }
 
   void _skip() {

@@ -14,12 +14,14 @@ import 'data/repositories/usage_repository.dart';
 import 'services/deeplink_form_service.dart';
 import 'services/spec_import_service.dart';
 import 'services/launcher_service.dart';
+import 'services/link_action_runner.dart';
 import 'services/link_builder_service.dart';
 import 'services/qr_service.dart';
 import 'services/share_service.dart';
 import 'viewmodels/catalogue_viewmodel.dart';
 import 'viewmodels/generator_viewmodel.dart';
 import 'viewmodels/history_viewmodel.dart';
+import 'viewmodels/home_viewmodel.dart';
 import 'viewmodels/spec_viewmodel.dart';
 
 Future<void> main() async {
@@ -84,16 +86,37 @@ class _LinkXAppState extends State<LinkXApp> {
             launcher: c.read<LauncherService>(),
           ),
         ),
+        ProxyProvider4<QrService, ShareService, HistoryRepository,
+            UsageRepository, LinkActionRunner>(
+          update: (
+            BuildContext c,
+            QrService qr,
+            ShareService share,
+            HistoryRepository history,
+            UsageRepository usage,
+            __,
+          ) =>
+              LinkActionRunner(
+            qrService: qr,
+            shareService: share,
+            launcher: c.read<LauncherService>(),
+            historyRepository: history,
+            usageRepository: usage,
+          ),
+        ),
+        ChangeNotifierProvider<HomeViewModel>(
+          create: (BuildContext c) => HomeViewModel(
+            runner: c.read<LinkActionRunner>(),
+            deeplinkRepository: c.read<DeeplinkRepository>(),
+            historyRepository: c.read<HistoryRepository>(),
+          ),
+        ),
         ChangeNotifierProvider<GeneratorViewModel>(
           create: (BuildContext c) => GeneratorViewModel(
             formService: c.read<DeeplinkFormService>(),
             builder: c.read<LinkBuilderService>(),
-            qrService: c.read<QrService>(),
-            shareService: c.read<ShareService>(),
-            launcher: c.read<LauncherService>(),
+            runner: c.read<LinkActionRunner>(),
             deeplinkRepository: c.read<DeeplinkRepository>(),
-            historyRepository: c.read<HistoryRepository>(),
-            usageRepository: c.read<UsageRepository>(),
           ),
         ),
       ],

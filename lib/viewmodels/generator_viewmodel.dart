@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../core/utils/action_result.dart';
 import '../data/models/deeplink_entry.dart';
@@ -10,32 +8,20 @@ import '../data/models/link_parameter.dart';
 import '../data/models/parameter_requirement.dart';
 import '../data/models/user_type.dart';
 import '../data/repositories/deeplink_repository.dart';
-import '../data/repositories/history_repository.dart';
-import '../data/repositories/usage_repository.dart';
 import '../services/deeplink_form_service.dart';
-import '../services/launcher_service.dart';
+import '../services/link_action_runner.dart';
 import '../services/link_builder_service.dart';
-import '../services/qr_service.dart';
-import '../services/share_service.dart';
 
 class GeneratorViewModel extends ChangeNotifier {
   GeneratorViewModel({
     required DeeplinkFormService formService,
     required LinkBuilderService builder,
-    required QrService qrService,
-    required ShareService shareService,
-    required LauncherService launcher,
+    required LinkActionRunner runner,
     required DeeplinkRepository deeplinkRepository,
-    required HistoryRepository historyRepository,
-    required UsageRepository usageRepository,
   })  : _formService = formService,
         _builder = builder,
-        _qrService = qrService,
-        _shareService = shareService,
-        _launcher = launcher,
-        _deeplinkRepository = deeplinkRepository,
-        _historyRepository = historyRepository,
-        _usageRepository = usageRepository {
+        _runner = runner,
+        _deeplinkRepository = deeplinkRepository {
     _deeplinkRepository.addListener(_onSpecChanged);
   }
 
@@ -46,12 +32,8 @@ class GeneratorViewModel extends ChangeNotifier {
 
   final DeeplinkFormService _formService;
   final LinkBuilderService _builder;
-  final QrService _qrService;
-  final ShareService _shareService;
-  final LauncherService _launcher;
+  final LinkActionRunner _runner;
   final DeeplinkRepository _deeplinkRepository;
-  final HistoryRepository _historyRepository;
-  final UsageRepository _usageRepository;
 
   DeeplinkEntry? _entry;
   String _variant = '';
@@ -202,46 +184,22 @@ class GeneratorViewModel extends ChangeNotifier {
   }
 
   Future<ActionResult> copyToClipboard() =>
-      _perform(LinkAction.generated, () async {
-        await Clipboard.setData(ClipboardData(text: url));
-        return const ActionResult.ok('Deeplink copied to the clipboard.');
-      });
+      _perform((GeneratedLink link) => _runner.copy(link));
 
-  Future<ActionResult> launch() => _perform(LinkAction.launched, () async {
-        final LaunchResult result = await _launcher.launch(url);
-        return result.isSuccess
-            ? const ActionResult.ok('Opening the deeplink…')
-            : ActionResult.error(result.message);
-      });
+  Future<ActionResult> launch() =>
+      _perform((GeneratedLink link) => _runner.launch(link));
 
   Future<ActionResult> shareUrl({Rect? origin}) =>
-      _perform(LinkAction.shared, () async {
-        final ShareResult result =
-            await _shareService.shareUrl(_link!, origin: origin);
-        return _fromShare(result, 'Deeplink shared.');
-      });
+      _perform((GeneratedLink link) => _runner.shareUrl(link, origin: origin));
 
-  Future<ActionResult> shareQrImage({Rect? origin}) =>
-      _perform(LinkAction.shared, () async {
-        final ShareResult result =
-            await _shareService.shareQrImage(_link!, origin: origin);
-        return _fromShare(result, 'QR code shared.');
-      });
+  Future<ActionResult> shareQrImage({Rect? origin}) => _perform(
+      (GeneratedLink link) => _runner.shareQrImage(link, origin: origin));
 
   Future<ActionResult> saveQrToGallery() =>
-      _perform(LinkAction.qrSaved, () async {
-        final QrSaveResult result = await _qrService.saveToGallery(
-          url,
-          fileName: _fileNameForQr(),
-        );
-        return result.isSuccess
-            ? ActionResult.ok(result.message)
-            : ActionResult.error(result.message);
-      });
+      _perform((GeneratedLink link) => _runner.saveQrToGallery(link));
 
   Future<ActionResult> _perform(
-    LinkAction action,
-    Future<ActionResult> Function() body,
+    Future<ActionResult> Function(GeneratedLink link) body,
   ) async {
     if (!hasLink) return _blocked();
     if (_isBusy) return const ActionResult.none();
@@ -249,12 +207,7 @@ class GeneratorViewModel extends ChangeNotifier {
     _isBusy = true;
     notifyListeners();
     try {
-      final ActionResult result = await body();
-      if (result.success && !result.silent) {
-        await _historyRepository.add(_link!, action);
-        await _usageRepository.increment(_entry?.id);
-      }
-      return result;
+      return await body(_link!);
     } finally {
       _isBusy = false;
       notifyListeners();
@@ -273,25 +226,9 @@ class GeneratorViewModel extends ChangeNotifier {
     );
   }
 
-  ActionResult _fromShare(ShareResult result, String successMessage) {
-    return switch (result.status) {
-      ShareResultStatus.success => ActionResult.ok(successMessage),
-      ShareResultStatus.dismissed => const ActionResult.none(),
-      ShareResultStatus.unavailable => ActionResult.ok(successMessage),
-    };
-  }
-
   @override
   void dispose() {
     _deeplinkRepository.removeListener(_onSpecChanged);
     super.dispose();
-  }
-
-  String _fileNameForQr() {
-    final String slug = (_entry?.destinationPage ?? 'deeplink')
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
-        .replaceAll(RegExp(r'^_+|_+$'), '');
-    return 'linkx_qr_${slug}_${DateTime.now().millisecondsSinceEpoch}';
   }
 }

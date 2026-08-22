@@ -9,6 +9,7 @@ import '../../core/utils/date_formatter.dart';
 import '../../data/models/history_entry.dart';
 import '../../viewmodels/generator_viewmodel.dart';
 import '../../viewmodels/history_viewmodel.dart';
+import '../../viewmodels/home_viewmodel.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/search_field.dart';
@@ -29,6 +30,11 @@ class HistoryView extends StatelessWidget {
         if (context.mounted) showActionResult(context, result);
 
       case HistoryTileAction.edit:
+        if (entry.link.isAdHoc) {
+          context.read<HomeViewModel>().setLink(entry.url);
+          context.go(AppRoute.home.path);
+          return;
+        }
         final bool restored =
             context.read<GeneratorViewModel>().loadHistoryEntry(entry);
         if (!restored) {

@@ -10,6 +10,7 @@ import 'package:linkx_tester/data/repositories/history_repository.dart';
 import 'package:linkx_tester/data/repositories/usage_repository.dart';
 import 'package:linkx_tester/services/deeplink_form_service.dart';
 import 'package:linkx_tester/services/launcher_service.dart';
+import 'package:linkx_tester/services/link_action_runner.dart';
 import 'package:linkx_tester/services/link_builder_service.dart';
 import 'package:linkx_tester/services/qr_service.dart';
 import 'package:linkx_tester/services/share_service.dart';
@@ -25,6 +26,7 @@ void main() {
   late HistoryRepository historyRepository;
   late UsageRepository usageRepository;
   late DeeplinkRepository deeplinkRepository;
+  late LinkActionRunner runner;
   late GeneratorViewModel vm;
 
   setUp(() async {
@@ -37,15 +39,19 @@ void main() {
     usageRepository = UsageRepository(storage);
     deeplinkRepository = DeeplinkRepository(fixtureSpec());
 
-    vm = GeneratorViewModel(
-      formService: const DeeplinkFormService(),
-      builder: const LinkBuilderService(),
+    runner = LinkActionRunner(
       qrService: const QrService(),
       shareService: const ShareService(QrService()),
       launcher: const LauncherService(),
-      deeplinkRepository: deeplinkRepository,
       historyRepository: historyRepository,
       usageRepository: usageRepository,
+    );
+
+    vm = GeneratorViewModel(
+      formService: const DeeplinkFormService(),
+      builder: const LinkBuilderService(),
+      runner: runner,
+      deeplinkRepository: deeplinkRepository,
     );
   });
 
@@ -231,12 +237,8 @@ void main() {
       final GeneratorViewModel isolated = GeneratorViewModel(
         formService: const DeeplinkFormService(),
         builder: const LinkBuilderService(),
-        qrService: const QrService(),
-        shareService: const ShareService(QrService()),
-        launcher: const LauncherService(),
+        runner: runner,
         deeplinkRepository: DeeplinkRepository(emptySpec),
-        historyRepository: historyRepository,
-        usageRepository: usageRepository,
       );
       addTearDown(isolated.dispose);
 

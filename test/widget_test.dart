@@ -8,6 +8,7 @@ import 'package:linkx_tester/views/catalogue/widgets/deeplink_card.dart';
 import 'package:linkx_tester/views/catalogue/widgets/filter_sheet.dart';
 import 'package:linkx_tester/views/generator/generator_view.dart';
 import 'package:linkx_tester/views/history/history_view.dart';
+import 'package:linkx_tester/views/home/home_view.dart';
 import 'package:linkx_tester/views/spec/setup_view.dart';
 import 'package:linkx_tester/views/splash/splash_view.dart';
 import 'package:linkx_tester/views/widgets/empty_state.dart';
@@ -37,7 +38,13 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> goToCatalogue(WidgetTester tester) async {
+    await tester.tap(find.text('Catalogue'));
+    await tester.pumpAndSettle();
+  }
+
   Future<void> openEntry(WidgetTester tester, String destinationPage) async {
+    await goToCatalogue(tester);
     await tester.tap(find.text(destinationPage).first);
     await tester.pumpAndSettle();
   }
@@ -59,7 +66,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SplashView), findsNothing);
-    expect(find.byType(CatalogueView), findsOneWidget);
+    expect(find.byType(HomeView), findsOneWidget);
   });
 
   testWidgets('tapping the splash skips straight to the catalogue',
@@ -77,12 +84,13 @@ void main() {
     await tester.tap(find.byType(SplashView));
     await tester.pumpAndSettle();
 
-    expect(find.byType(CatalogueView), findsOneWidget);
+    expect(find.byType(HomeView), findsOneWidget);
   });
 
   testWidgets('starts on the catalogue with the ranked spec entries',
       (WidgetTester tester) async {
     await pumpApp(tester);
+    await goToCatalogue(tester);
 
     expect(find.byType(CatalogueView), findsOneWidget);
     expect(find.text('Deeplinks'), findsOneWidget);
@@ -93,6 +101,7 @@ void main() {
   testWidgets('no demo badge when the real spec is loaded',
       (WidgetTester tester) async {
     await pumpApp(tester);
+    await goToCatalogue(tester);
     expect(find.text('DEMO SPEC'), findsNothing);
   });
 
@@ -111,12 +120,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SetupView), findsOneWidget);
-    expect(find.byType(CatalogueView), findsNothing);
+    expect(find.byType(HomeView), findsNothing);
 
     await tester.tap(find.text('Continue with the example spec'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(CatalogueView), findsOneWidget);
+    expect(find.byType(HomeView), findsOneWidget);
+
+    await goToCatalogue(tester);
     expect(find.text('DEMO SPEC'), findsOneWidget);
   });
 
@@ -142,12 +153,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SetupView), findsNothing);
-    expect(find.byType(CatalogueView), findsOneWidget);
+    expect(find.byType(HomeView), findsOneWidget);
+
+    await goToCatalogue(tester);
     expect(find.text('DEMO SPEC'), findsOneWidget);
   });
 
   testWidgets('search filters by parameter name', (WidgetTester tester) async {
     await pumpApp(tester);
+    await goToCatalogue(tester);
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Search page, path or parameter'),
@@ -163,6 +177,7 @@ void main() {
 
   testWidgets('the filter sheet narrows the list', (WidgetTester tester) async {
     await pumpApp(tester);
+    await goToCatalogue(tester);
 
     await tester.tap(find.byTooltip('Filter'));
     await tester.pumpAndSettle();
@@ -253,6 +268,63 @@ void main() {
 
     expect(find.text('QR code'), findsOneWidget);
     expect(find.byType(QrImageView), findsOneWidget);
+  });
+
+  testWidgets('the home launcher rejects a link with no scheme',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
+      'not-a-link',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining('Start the link with a scheme'),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<FilledButton>(find.widgetWithText(FilledButton, 'Launch'))
+          .onPressed,
+      isNull,
+    );
+  });
+
+  testWidgets('the home launcher enables actions for a valid link',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
+      'demoapp://deeplink/inbox?folder=alpha',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Start the link with a scheme'), findsNothing);
+    expect(
+      tester
+          .widget<FilledButton>(find.widgetWithText(FilledButton, 'Launch'))
+          .onPressed,
+      isNotNull,
+    );
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'QR'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('QR code'), findsOneWidget);
+    expect(find.byType(QrImageView), findsOneWidget);
+    expect(find.text('Ad-hoc link'), findsOneWidget);
+  });
+
+  testWidgets('home shows the top three ranked deeplinks and hides recent',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+
+    expect(find.text('TOP LINKS'), findsOneWidget);
+    expect(find.text('RECENT'), findsNothing);
+    expect(find.byType(DeeplinkCard), findsNWidgets(3));
   });
 
   testWidgets('the history tab starts empty', (WidgetTester tester) async {

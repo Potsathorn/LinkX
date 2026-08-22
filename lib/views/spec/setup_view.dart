@@ -18,7 +18,7 @@ class SetupView extends StatelessWidget {
     if (!context.mounted) return;
 
     showActionResult(context, result);
-    if (result.success && !result.silent) context.go(AppRoute.catalogue.path);
+    if (result.success && !result.silent) context.go(AppRoute.home.path);
   }
 
   Future<void> _paste(BuildContext context, SpecViewModel vm) async {
@@ -29,7 +29,7 @@ class SetupView extends StatelessWidget {
     if (!context.mounted) return;
 
     showActionResult(context, result);
-    if (result.success && !result.silent) context.go(AppRoute.catalogue.path);
+    if (result.success && !result.silent) context.go(AppRoute.home.path);
   }
 
   @override
@@ -102,7 +102,7 @@ class SetupView extends StatelessWidget {
                       : () async {
                           await vm.acceptExample();
                           if (context.mounted) {
-                            context.go(AppRoute.catalogue.path);
+                            context.go(AppRoute.home.path);
                           }
                         },
                   child: Text(

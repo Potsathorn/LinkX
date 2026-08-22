@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../../data/models/generated_link.dart';
+import '../../viewmodels/generator_viewmodel.dart';
 
 import '../../views/generator/generator_view.dart';
 import '../../views/history/history_view.dart';
+import '../../views/home/home_view.dart';
 import '../../views/qr/qr_view.dart';
 import '../../views/shell/app_shell.dart';
 import '../../views/spec/setup_view.dart';
@@ -15,6 +20,7 @@ enum AppRoute {
   splash('/splash', 'Splash'),
   setup('/setup', 'Setup'),
   spec('/spec', 'Spec'),
+  home('/home', 'Home'),
   catalogue('/catalogue', 'Catalogue'),
   generator('/generator', 'Generator'),
   history('/history', 'History'),
@@ -52,6 +58,16 @@ class AppRouter {
           ) =>
               AppShell(navigationShell: navigationShell),
           branches: <StatefulShellBranch>[
+            StatefulShellBranch(
+              routes: <RouteBase>[
+                GoRoute(
+                  path: AppRoute.home.path,
+                  name: AppRoute.home.name,
+                  builder: (BuildContext context, GoRouterState state) =>
+                      const HomeView(),
+                ),
+              ],
+            ),
             StatefulShellBranch(
               routes: <RouteBase>[
                 GoRoute(
@@ -109,8 +125,12 @@ class AppRouter {
           path: AppRoute.qr.path,
           name: AppRoute.qr.name,
           parentNavigatorKey: rootNavigatorKey,
-          pageBuilder: (BuildContext context, GoRouterState state) =>
-              const ModalSheetPage<void>(child: QrSheet()),
+          pageBuilder: (BuildContext context, GoRouterState state) {
+            final GeneratedLink? link = state.extra is GeneratedLink
+                ? state.extra! as GeneratedLink
+                : context.read<GeneratorViewModel>().link;
+            return ModalSheetPage<void>(child: QrSheet(link: link));
+          },
         ),
       ],
       errorBuilder: (BuildContext context, GoRouterState state) =>
