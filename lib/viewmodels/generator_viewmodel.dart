@@ -35,7 +35,14 @@ class GeneratorViewModel extends ChangeNotifier {
         _launcher = launcher,
         _deeplinkRepository = deeplinkRepository,
         _historyRepository = historyRepository,
-        _usageRepository = usageRepository;
+        _usageRepository = usageRepository {
+    _deeplinkRepository.addListener(_onSpecChanged);
+  }
+
+  void _onSpecChanged() {
+    if (_entry == null) return;
+    if (_deeplinkRepository.byId(_entry!.id) == null) reset();
+  }
 
   final DeeplinkFormService _formService;
   final LinkBuilderService _builder;
@@ -272,6 +279,12 @@ class GeneratorViewModel extends ChangeNotifier {
       ShareResultStatus.dismissed => const ActionResult.none(),
       ShareResultStatus.unavailable => ActionResult.ok(successMessage),
     };
+  }
+
+  @override
+  void dispose() {
+    _deeplinkRepository.removeListener(_onSpecChanged);
+    super.dispose();
   }
 
   String _fileNameForQr() {

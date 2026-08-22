@@ -35,7 +35,7 @@ void main() {
     final LocalStorage storage = await LocalStorage.getInstance();
     historyRepository = HistoryRepository(storage);
     usageRepository = UsageRepository(storage);
-    deeplinkRepository = DeeplinkRepository(loadSpecEntries());
+    deeplinkRepository = DeeplinkRepository(fixtureSpec());
 
     vm = GeneratorViewModel(
       formService: const DeeplinkFormService(),
@@ -234,7 +234,7 @@ void main() {
         qrService: const QrService(),
         shareService: const ShareService(QrService()),
         launcher: const LauncherService(),
-        deeplinkRepository: DeeplinkRepository(const <DeeplinkEntry>[]),
+        deeplinkRepository: DeeplinkRepository(emptySpec),
         historyRepository: historyRepository,
         usageRepository: usageRepository,
       );

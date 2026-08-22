@@ -48,14 +48,38 @@ void main() {
       }
     });
 
-    test('drops an entry with no path pattern', () {
+    test('drops an entry with no path pattern but keeps the rest', () {
       const String raw = '''
       {"deeplinks": [
-        {"rank": 1, "destination_page": "A", "structure": {"path_pattern": ""},
+        {"rank": 1, "destination_page": "Broken", "structure": {"path_pattern": ""},
+         "valid_user_types": {"allowed": ["etu"]},
+         "label": ["Push Noti"], "query_parameters": []},
+        {"rank": 2, "destination_page": "Fine",
+         "structure": {"path_pattern": "demoapp://deeplink/fine"},
          "valid_user_types": {"allowed": ["etu"]},
          "label": ["Push Noti"], "query_parameters": []}
       ]}''';
-      expect(const DeeplinkSpecSource().parse(raw), isEmpty);
+      final List<DeeplinkEntry> parsed = const DeeplinkSpecSource().parse(raw);
+      expect(parsed.single.destinationPage, 'Fine');
+    });
+
+    test('rejects a spec with no usable entry', () {
+      const String raw = '{"deeplinks": []}';
+      expect(
+        () => const DeeplinkSpecSource().parse(raw),
+        throwsA(isA<SpecFormatException>()),
+      );
+    });
+
+    test('rejects input that is not a deeplink spec', () {
+      expect(
+        () => const DeeplinkSpecSource().parse('{"other": 1}'),
+        throwsA(isA<SpecFormatException>()),
+      );
+      expect(
+        () => const DeeplinkSpecSource().parse('nonsense'),
+        throwsA(isA<SpecFormatException>()),
+      );
     });
   });
 

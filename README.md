@@ -219,28 +219,49 @@ Consequences worth knowing:
 * There is no separate red. Amber doubles as the error colour, which is why it
   is kept off everything that is merely "normal".
 
-## The spec is not in this repository
+## Loading the spec
 
-`assets/spec/deeplink_spec.json` is git-ignored. It carries CardX's internal
-routing table, so it is distributed out of band rather than committed.
+The real spec is never committed. `assets/spec/deeplink_spec.json` is
+git-ignored, and the app resolves its data at start-up in this order:
 
-`assets/spec/` is declared as an asset **directory**, which is what makes this
-work: the directory always exists because
-[example_spec.json](assets/spec/example_spec.json) is committed, so the build
-never fails on a missing asset. At start-up
-[DeeplinkSpecSource](lib/data/datasources/deeplink_spec_source.dart) tries the
-real spec first and falls back to the example when it is absent *or malformed*.
+| # | Source | When |
+|---|--------|------|
+| 1 | **Imported** — a file the tester picked, stored on the device | whenever one has been imported |
+| 2 | **Bundled** — `assets/spec/deeplink_spec.json` | when a developer drops the real file into the project |
+| 3 | **Example** — [example_spec.json](assets/spec/example_spec.json) | otherwise |
 
-When the fallback is in use the catalogue shows a **DEMO SPEC** badge beside the
-title. Without it a tester could fire example links at a device and believe they
-were real, which is the failure this badge exists to prevent.
+`assets/spec/` is declared as an asset **directory**, which is what keeps the
+build working: the directory always exists because the example is committed, so
+a missing real spec never fails asset bundling.
 
-To work with the real spec, drop it at `assets/spec/deeplink_spec.json` and
-restart. Nothing else changes, and git will not see the file.
+### First run
+
+With no imported spec and no bundled one, the splash hands off to `/setup`
+instead of the catalogue. From there a tester can **choose a spec file** with
+the native picker, **paste JSON**, or continue on the example. The choice is
+saved on the device, so setup appears once, not every launch.
+
+The spec can be replaced at any time from the spec icon in the catalogue app
+bar (`/spec`), which also shows which source is live, the file name, the entry
+count and when it was loaded.
+
+### Guard rails
+
+* **Nothing is overwritten by a bad file.** An import is parsed and validated
+  before it is stored; a malformed file returns the parser's own message and the
+  previous spec stays live.
+* **A stored spec that stops parsing is discarded** on the next launch rather
+  than bricking start-up.
+* **A DEMO SPEC badge** sits beside the catalogue title whenever the example is
+  in use. Without it a tester could fire example links at a device and believe
+  they were real.
+* **Imports never touch the repository.** The file is copied into the app's
+  documents directory, so the spec exists only on the device that imported it.
 
 ## Updating the spec
 
-Replace `assets/spec/deeplink_spec.json` and restart. The loader tolerates unknown keys and
+Import a new file from `/spec`, or replace
+`assets/spec/deeplink_spec.json` and restart. The loader tolerates unknown keys and
 skips entries without a `path_pattern`. Entry ids are derived from the path
 pattern, so history and usage counters survive edits to unrelated fields but
 reset for an entry whose pattern changes.
@@ -307,8 +328,8 @@ were removed.
 
 * `NSPhotoLibraryAddUsageDescription`, `NSPhotoLibraryUsageDescription` and
   `LSApplicationQueriesSchemes` in `Info.plist`.
-* Deployment target raised **12.0 → 13.0**, required by
-  `shared_preferences_foundation` and `url_launcher_ios`.
+* Deployment target raised to **14.0** — `shared_preferences_foundation` and
+  `url_launcher_ios` need 13.0, and `file_picker_darwin` needs 14.0.
 
 ---
 

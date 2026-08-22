@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:linkx_tester/data/datasources/deeplink_spec_source.dart';
 import 'package:linkx_tester/data/datasources/local_storage.dart';
 import 'package:linkx_tester/main.dart';
 import 'package:linkx_tester/views/catalogue/catalogue_view.dart';
@@ -7,6 +8,7 @@ import 'package:linkx_tester/views/catalogue/widgets/deeplink_card.dart';
 import 'package:linkx_tester/views/catalogue/widgets/filter_sheet.dart';
 import 'package:linkx_tester/views/generator/generator_view.dart';
 import 'package:linkx_tester/views/history/history_view.dart';
+import 'package:linkx_tester/views/spec/setup_view.dart';
 import 'package:linkx_tester/views/splash/splash_view.dart';
 import 'package:linkx_tester/views/widgets/empty_state.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -30,7 +32,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      LinkXApp(storage: storage, entries: loadSpecEntries()),
+      LinkXApp(storage: storage, spec: fixtureSpec()),
     );
     await tester.pumpAndSettle();
   }
@@ -47,7 +49,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      LinkXApp(storage: storage, entries: loadSpecEntries()),
+      LinkXApp(storage: storage, spec: fixtureSpec()),
     );
     await tester.pump();
 
@@ -67,7 +69,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      LinkXApp(storage: storage, entries: loadSpecEntries()),
+      LinkXApp(storage: storage, spec: fixtureSpec()),
     );
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(SplashView), findsOneWidget);
@@ -94,7 +96,7 @@ void main() {
     expect(find.text('DEMO SPEC'), findsNothing);
   });
 
-  testWidgets('the demo badge shows when the example spec is loaded',
+  testWidgets('an example spec sends the tester to setup first',
       (WidgetTester tester) async {
     tester.view.physicalSize = const Size(900, 2600);
     tester.view.devicePixelRatio = 1.0;
@@ -103,12 +105,44 @@ void main() {
     await tester.pumpWidget(
       LinkXApp(
         storage: storage,
-        entries: loadSpecEntries(),
-        isExampleSpec: true,
+        spec: fixtureSpec(origin: SpecOrigin.example),
       ),
     );
     await tester.pumpAndSettle();
 
+    expect(find.byType(SetupView), findsOneWidget);
+    expect(find.byType(CatalogueView), findsNothing);
+
+    await tester.tap(find.text('Continue with the example spec'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CatalogueView), findsOneWidget);
+    expect(find.text('DEMO SPEC'), findsOneWidget);
+  });
+
+  testWidgets('setup is not shown again once the example is accepted',
+      (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues(
+      <String, Object>{'linkx.spec.exampleAccepted.v1': true},
+    );
+    SharedPreferences.resetStatic();
+    LocalStorage.resetForTesting();
+    final LocalStorage seeded = await LocalStorage.getInstance();
+
+    tester.view.physicalSize = const Size(900, 2600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      LinkXApp(
+        storage: seeded,
+        spec: fixtureSpec(origin: SpecOrigin.example),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SetupView), findsNothing);
+    expect(find.byType(CatalogueView), findsOneWidget);
     expect(find.text('DEMO SPEC'), findsOneWidget);
   });
 

@@ -5,12 +5,16 @@ import '../../views/generator/generator_view.dart';
 import '../../views/history/history_view.dart';
 import '../../views/qr/qr_view.dart';
 import '../../views/shell/app_shell.dart';
+import '../../views/spec/setup_view.dart';
+import '../../views/spec/spec_sheet.dart';
 import '../../views/splash/splash_view.dart';
 import '../../views/catalogue/catalogue_view.dart';
 import '../../views/catalogue/widgets/filter_sheet.dart';
 
 enum AppRoute {
   splash('/splash', 'Splash'),
+  setup('/setup', 'Setup'),
+  spec('/spec', 'Spec'),
   catalogue('/catalogue', 'Catalogue'),
   generator('/generator', 'Generator'),
   history('/history', 'History'),
@@ -79,6 +83,20 @@ class AppRouter {
               ],
             ),
           ],
+        ),
+        GoRoute(
+          path: AppRoute.setup.path,
+          name: AppRoute.setup.name,
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (BuildContext context, GoRouterState state) =>
+              const SetupView(),
+        ),
+        GoRoute(
+          path: AppRoute.spec.path,
+          name: AppRoute.spec.name,
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (BuildContext context, GoRouterState state) =>
+              const ModalSheetPage<void>(child: SpecSheet()),
         ),
         GoRoute(
           path: AppRoute.filters.path,

@@ -40,22 +40,33 @@ class CatalogueView extends StatelessWidget {
                   const Text('Deeplinks'),
                   if (vm.isExampleSpec) ...<Widget>[
                     const SizedBox(width: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 7, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: Palette.amber,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        'DEMO SPEC',
-                        style: AppTheme.hudLabel(color: Palette.black, size: 9),
+                    InkWell(
+                      onTap: () => context.push(AppRoute.spec.path),
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Palette.amber,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'DEMO SPEC',
+                          style:
+                              AppTheme.hudLabel(color: Palette.black, size: 9),
+                        ),
                       ),
                     ),
                   ],
                 ],
               ),
               actions: <Widget>[
+                IconButton(
+                  tooltip: 'Deeplink spec',
+                  onPressed: () => context.push(AppRoute.spec.path),
+                  icon: const Icon(Icons.description_outlined,
+                      color: Palette.grey),
+                ),
                 _FilterButton(active: vm.isFiltering),
                 const SizedBox(width: 8),
               ],

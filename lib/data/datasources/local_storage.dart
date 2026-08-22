@@ -43,5 +43,9 @@ class LocalStorage {
     await _prefs.setString(key, raw);
   }
 
+  bool flag(String key) => _prefs.getBool(key) ?? false;
+
+  Future<void> setFlag(String key, bool value) => _prefs.setBool(key, value);
+
   Future<void> remove(String key) => _prefs.remove(key);
 }

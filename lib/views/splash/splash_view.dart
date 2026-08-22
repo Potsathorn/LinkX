@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_theme.dart';
+import '../../viewmodels/spec_viewmodel.dart';
 import 'widgets/glitch_wordmark.dart';
 import 'widgets/splash_effects.dart';
 
@@ -33,7 +35,9 @@ class _SplashViewState extends State<SplashView>
   void _enter() {
     if (_left || !mounted) return;
     _left = true;
-    context.go(AppRoute.catalogue.path);
+
+    final bool prompt = context.read<SpecViewModel>().shouldPromptForSpec;
+    context.go(prompt ? AppRoute.setup.path : AppRoute.catalogue.path);
   }
 
   void _skip() {

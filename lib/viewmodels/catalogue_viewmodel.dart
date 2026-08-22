@@ -26,6 +26,7 @@ class CatalogueViewModel extends ChangeNotifier {
   })  : _deeplinkRepository = deeplinkRepository,
         _usageRepository = usageRepository {
     _usageRepository.addListener(_reloadUsage);
+    _deeplinkRepository.addListener(_onSpecChanged);
     _reloadUsage();
   }
 
@@ -103,6 +104,12 @@ class CatalogueViewModel extends ChangeNotifier {
     return const ActionResult.ok('Usage statistics cleared.');
   }
 
+  void _onSpecChanged() {
+    _label = null;
+    _userType = null;
+    notifyListeners();
+  }
+
   void _reloadUsage() {
     _usage = _usageRepository.loadMap();
     notifyListeners();
@@ -111,6 +118,7 @@ class CatalogueViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _usageRepository.removeListener(_reloadUsage);
+    _deeplinkRepository.removeListener(_onSpecChanged);
     super.dispose();
   }
 }

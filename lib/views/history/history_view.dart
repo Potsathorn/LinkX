@@ -100,14 +100,15 @@ class HistoryView extends StatelessWidget {
       ),
       body: Column(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
-            child: SearchField(
-              hintText: 'Search deeplinks, params or values',
-              initialValue: vm.query,
-              onChanged: vm.search,
+          if (!vm.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+              child: SearchField(
+                hintText: 'Search deeplinks, params or values',
+                initialValue: vm.query,
+                onChanged: vm.search,
+              ),
             ),
-          ),
           Expanded(
             child: grouped.isEmpty
                 ? EmptyState(

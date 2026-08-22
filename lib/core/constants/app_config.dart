@@ -6,6 +6,7 @@ class AppConfig {
 
   static const String kHistoryKey = 'linkx.history.v2';
   static const String kUsageKey = 'linkx.usage.v2';
+  static const String kExampleAcceptedKey = 'linkx.spec.exampleAccepted.v1';
 
   static const int historyLimit = 200;
   static const int topUsageLimit = 5;

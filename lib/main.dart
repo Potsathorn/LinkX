@@ -8,11 +8,11 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/backdrop.dart';
 import 'data/datasources/deeplink_spec_source.dart';
 import 'data/datasources/local_storage.dart';
-import 'data/models/deeplink_entry.dart';
 import 'data/repositories/deeplink_repository.dart';
 import 'data/repositories/history_repository.dart';
 import 'data/repositories/usage_repository.dart';
 import 'services/deeplink_form_service.dart';
+import 'services/spec_import_service.dart';
 import 'services/launcher_service.dart';
 import 'services/link_builder_service.dart';
 import 'services/qr_service.dart';
@@ -20,6 +20,7 @@ import 'services/share_service.dart';
 import 'viewmodels/catalogue_viewmodel.dart';
 import 'viewmodels/generator_viewmodel.dart';
 import 'viewmodels/history_viewmodel.dart';
+import 'viewmodels/spec_viewmodel.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,24 +28,14 @@ Future<void> main() async {
   final LocalStorage storage = await LocalStorage.getInstance();
   final SpecLoadResult spec = await const DeeplinkSpecSource().load();
 
-  runApp(LinkXApp(
-    storage: storage,
-    entries: spec.entries,
-    isExampleSpec: spec.isExample,
-  ));
+  runApp(LinkXApp(storage: storage, spec: spec));
 }
 
 class LinkXApp extends StatefulWidget {
-  const LinkXApp({
-    super.key,
-    required this.storage,
-    required this.entries,
-    this.isExampleSpec = false,
-  });
+  const LinkXApp({super.key, required this.storage, required this.spec});
 
   final LocalStorage storage;
-  final List<DeeplinkEntry> entries;
-  final bool isExampleSpec;
+  final SpecLoadResult spec;
 
   @override
   State<LinkXApp> createState() => _LinkXAppState();
@@ -64,17 +55,22 @@ class _LinkXAppState extends State<LinkXApp> {
         ProxyProvider<QrService, ShareService>(
           update: (_, QrService qr, __) => ShareService(qr),
         ),
-        Provider<DeeplinkRepository>.value(
-          value: DeeplinkRepository(
-            widget.entries,
-            isExample: widget.isExampleSpec,
-          ),
+        ChangeNotifierProvider<DeeplinkRepository>(
+          create: (_) => DeeplinkRepository(widget.spec),
         ),
         ChangeNotifierProvider<HistoryRepository>(
           create: (_) => HistoryRepository(widget.storage),
         ),
         ChangeNotifierProvider<UsageRepository>(
           create: (_) => UsageRepository(widget.storage),
+        ),
+        Provider<SpecImportService>.value(value: const SpecImportService()),
+        ChangeNotifierProvider<SpecViewModel>(
+          create: (BuildContext c) => SpecViewModel(
+            deeplinkRepository: c.read<DeeplinkRepository>(),
+            importService: c.read<SpecImportService>(),
+            storage: widget.storage,
+          ),
         ),
         ChangeNotifierProvider<CatalogueViewModel>(
           create: (BuildContext c) => CatalogueViewModel(
