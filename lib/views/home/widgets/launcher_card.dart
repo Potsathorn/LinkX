@@ -50,15 +50,15 @@ class LauncherCard extends StatelessWidget {
               ),
               IconButton(
                 visualDensity: VisualDensity.compact,
-                tooltip: 'Clear',
-                icon: const Icon(Icons.backspace_outlined, size: 17),
-                onPressed: vm.isEmpty ? null : vm.clear,
-              ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
                 tooltip: 'Share',
                 icon: const Icon(Icons.share, size: 17),
                 onPressed: vm.isEmpty ? null : onShare,
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: 'Clear',
+                icon: const Icon(Icons.backspace_outlined, size: 17),
+                onPressed: vm.isEmpty ? null : vm.clear,
               ),
             ],
           ),
@@ -75,13 +75,14 @@ class LauncherCard extends StatelessWidget {
               hintText: 'Paste any deeplink or OneLink to test',
               errorText: vm.validationMessage,
               errorMaxLines: 2,
+           
+              
             ),
           ),
           const SizedBox(height: 14),
           Row(
             children: <Widget>[
               Expanded(
-                flex: 2,
                 child: FilledButton.icon(
                   onPressed: enabled ? onLaunch : null,
                   icon: vm.isBusy

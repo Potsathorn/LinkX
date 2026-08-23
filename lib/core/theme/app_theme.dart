@@ -100,7 +100,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Palette.navy,
+        fillColor: Palette.greyFaint.withAlpha(100),
         hintStyle: const TextStyle(color: Palette.greyMuted),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
@@ -112,7 +112,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(color: Palette.amber, width: 1.6),
+          borderSide: const BorderSide(color: Palette.greyMuted, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
@@ -152,8 +152,9 @@ class AppTheme {
           foregroundColor: Palette.black,
           disabledBackgroundColor: Palette.navyRaised,
           disabledForegroundColor: Palette.greyFaint,
-          minimumSize: const Size(0, 48),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          minimumSize: const Size(0, 38),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
           textStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w800,
@@ -165,9 +166,10 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: Palette.grey,
           disabledForegroundColor: Palette.greyFaint,
-          minimumSize: const Size(0, 48),
+          minimumSize: const Size(0, 38),
           side: const BorderSide(color: Palette.navyEdge),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
           textStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,

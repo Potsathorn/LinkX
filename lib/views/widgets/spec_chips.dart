@@ -13,7 +13,6 @@ class RankBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isTop = rank <= 3;
     final double size = compact ? 24 : 30;
 
     return Container(
@@ -21,10 +20,10 @@ class RankBadge extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isTop ? Palette.amber : Colors.transparent,
+        color: Palette.amber,
         borderRadius: BorderRadius.circular(5),
         border: Border.all(
-          color: isTop ? Palette.amber : Palette.navyEdge,
+          color: Palette.amber,
         ),
       ),
       child: Text(
@@ -35,7 +34,7 @@ class RankBadge extends StatelessWidget {
           fontSize: compact ? 11 : 13,
           height: 1,
           fontWeight: FontWeight.w800,
-          color: isTop ? Palette.black : Palette.greyMuted,
+          color: Palette.black,
         ),
       ),
     );

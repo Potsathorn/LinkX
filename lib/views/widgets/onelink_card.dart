@@ -61,22 +61,22 @@ class OneLinkCard extends StatelessWidget {
             )
           else ...<Widget>[
             Text('ENVIRONMENT', style: AppTheme.hudLabel(size: 8.5)),
-            const SizedBox(height: 9),
-            Row(
-              children: <Widget>[
-                for (final OneLinkEnvironment option in vm.environments) ...[
-                  Expanded(
-                    child: _EnvOption(
+            const SizedBox(height: 6),
+            RadioGroup<String>(
+              groupValue: vm.env,
+              onChanged: vm.selectEnvironment,
+              child: Column(
+                children: <Widget>[
+                  for (final OneLinkEnvironment option in vm.environments)
+                    _EnvOption(
                       label: option.env,
                       selected: vm.env == option.env,
                       onTap: () => vm.selectEnvironment(option.env),
                     ),
-                  ),
-                  if (option != vm.environments.last) const SizedBox(width: 10),
                 ],
-              ],
+              ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -133,28 +133,33 @@ class _EnvOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: selected ? Palette.amber : Colors.transparent,
+    return InkWell(
+      onTap: onTap,
       borderRadius: BorderRadius.circular(6),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(6),
-        child: Container(
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: selected ? Palette.amber : Palette.navyEdge,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: <Widget>[
+            Radio<String>(
+              value: label,
+              activeColor: Palette.amber,
+              fillColor: WidgetStateProperty.resolveWith<Color>(
+                (Set<WidgetState> states) =>
+                    states.contains(WidgetState.selected)
+                        ? Palette.amber
+                        : Palette.navyEdge,
+              ),
+              visualDensity: VisualDensity.compact,
             ),
-          ),
-          child: Text(
-            label,
-            style: AppTheme.hudLabel(
-              color: selected ? Palette.black : Palette.grey,
-              size: 11,
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: AppTheme.hudLabel(
+                color: selected ? Palette.amber : Palette.grey,
+                size: 11,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -197,23 +202,29 @@ class _Result extends StatelessWidget {
             const SizedBox(width: 9),
             Expanded(
               child: Text(
-                reused ? 'Reused from cache' : 'Generated now',
+                "${reused ? 'Reused from cache' : 'Generated now'}\n${DateFormatter.relative(link.createdAt)}",
                 style: AppTheme.hudLabel(size: 8.5),
               ),
             ),
-            Text(
-              DateFormatter.relative(link.createdAt),
-              style: AppTheme.hudLabel(size: 8.5),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Copy OneLink',
+              icon: const Icon(Icons.copy_all_outlined, size: 17),
+              onPressed: onCopy,
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Share OneLink',
+              icon: const Icon(Icons.share, size: 17),
+              onPressed: onShare,
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        TerminalBlock(text: link.url, maxLines: 4, prefix: '↗'),
+        TerminalBlock(text: link.url, maxLines: 4, prefix: '🔗'),
         const SizedBox(height: 14),
         Row(
           children: <Widget>[
             Expanded(
-              flex: 2,
               child: FilledButton.icon(
                 onPressed: onLaunch,
                 icon: const Icon(Icons.rocket_launch_outlined, size: 18),
@@ -227,23 +238,7 @@ class _Result extends StatelessWidget {
                 child: const Text('QR'),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: onShare,
-                child: const Text('Share'),
-              ),
-            ),
           ],
-        ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: onCopy,
-            icon: const Icon(Icons.copy_all_outlined, size: 16),
-            label: const Text('Copy OneLink'),
-          ),
         ),
       ],
     );

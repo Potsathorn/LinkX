@@ -61,12 +61,6 @@ class CatalogueView extends StatelessWidget {
                 ],
               ),
               actions: <Widget>[
-                IconButton(
-                  tooltip: 'Deeplink spec',
-                  onPressed: () => context.push(AppRoute.spec.path),
-                  icon: const Icon(Icons.description_outlined,
-                      color: Palette.grey),
-                ),
                 _FilterButton(active: vm.isFiltering),
                 const SizedBox(width: 8),
               ],

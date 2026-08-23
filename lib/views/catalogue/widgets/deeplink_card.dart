@@ -30,7 +30,7 @@ class DeeplinkCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   RankBadge(rank: entry.rank),
                   const SizedBox(width: 10),

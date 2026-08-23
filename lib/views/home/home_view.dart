@@ -57,7 +57,13 @@ class HomeView extends StatelessWidget {
     final List<DeeplinkEntry> top = vm.topRanked;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('LinkX')),
+      appBar: AppBar(title: const Text('LinkX'), actions: <Widget>[
+        IconButton(
+          tooltip: 'Deeplink spec',
+          onPressed: () => context.push(AppRoute.spec.path),
+          icon: const Icon(Icons.description_outlined, color: Palette.grey),
+        ),
+      ]),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
