@@ -1,4 +1,20 @@
 {
+  "onelink": {
+    "afOption": [
+      {
+        "env": "SIT",
+        "afDevKey": "EXAMPLE_DEV_KEY",
+        "afAppleId": "0000000000",
+        "afOneLinkId": "exSI"
+      },
+      {
+        "env": "UAT",
+        "afDevKey": "EXAMPLE_DEV_KEY",
+        "afAppleId": "0000000001",
+        "afOneLinkId": "exUA"
+      }
+    ]
+  },
   "deeplinks": [
     {
       "rank": 1,
@@ -6,20 +22,38 @@
       "structure": {
         "path_pattern": "demoapp://deeplink/inbox?folder={folder}&view={view}"
       },
-      "valid_user_types": { "allowed": ["etu"] },
-      "label": ["Marketing (OneLink)", "Chat/Voice bot"],
+      "valid_user_types": {
+        "allowed": [
+          "etu"
+        ]
+      },
+      "label": [
+        "Marketing (OneLink)",
+        "Chat/Voice bot"
+      ],
       "query_parameters": [
         {
           "name": "folder",
           "requirement": "conditional",
-          "allowed_values_in_code": ["alpha", "beta", "gamma"]
+          "allowed_values_in_code": [
+            "alpha",
+            "beta",
+            "gamma"
+          ]
         },
         {
           "name": "view",
           "requirement": "conditional",
-          "allowed_values_in_code": ["list", "grid", "compact"]
+          "allowed_values_in_code": [
+            "list",
+            "grid",
+            "compact"
+          ]
         },
-        { "name": "refId", "requirement": "optional" }
+        {
+          "name": "refId",
+          "requirement": "optional"
+        }
       ]
     },
     {
@@ -29,25 +63,52 @@
         "path_pattern": "demoapp://deeplink/catalog?groupCode={groupCode}&itemCode={itemCode}"
       },
       "valid_user_types": {
-        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+        "allowed": [
+          "nta",
+          "prospect",
+          "ntu",
+          "etu",
+          "etp"
+        ]
       },
-      "label": ["Marketing (OneLink)", "Push Noti"],
+      "label": [
+        "Marketing (OneLink)",
+        "Push Noti"
+      ],
       "query_parameters": [
         {
           "name": "groupCode",
           "requirement": "required",
-          "allowed_values_in_code": ["ALPHA", "BETA"]
+          "allowed_values_in_code": [
+            "ALPHA",
+            "BETA"
+          ]
         },
-        { "name": "itemCode", "requirement": "required" },
-        { "name": "utm_campaign", "requirement": "optional" }
+        {
+          "name": "itemCode",
+          "requirement": "required"
+        },
+        {
+          "name": "utm_campaign",
+          "requirement": "optional"
+        }
       ]
     },
     {
       "rank": 3,
       "destination_page": "ExampleItemPage",
-      "structure": { "path_pattern": "demoapp://deeplink/catalog/item/{itemId}" },
-      "valid_user_types": { "allowed": ["etu", "prospect"] },
-      "label": ["Chat/Voice bot"],
+      "structure": {
+        "path_pattern": "demoapp://deeplink/catalog/item/{itemId}"
+      },
+      "valid_user_types": {
+        "allowed": [
+          "etu",
+          "prospect"
+        ]
+      },
+      "label": [
+        "Chat/Voice bot"
+      ],
       "query_parameters": []
     },
     {
@@ -57,17 +118,33 @@
         "path_pattern": "demoapp://deeplink/home | demoapp://deeplink/landing"
       },
       "valid_user_types": {
-        "allowed": ["nta", "prospect", "ntu", "etu", "etp"]
+        "allowed": [
+          "nta",
+          "prospect",
+          "ntu",
+          "etu",
+          "etp"
+        ]
       },
-      "label": ["Marketing (OneLink)"],
+      "label": [
+        "Marketing (OneLink)"
+      ],
       "query_parameters": []
     },
     {
       "rank": 5,
       "destination_page": "ExampleSettingsPage",
-      "structure": { "path_pattern": "demoapp://deeplink/settings" },
-      "valid_user_types": { "allowed": ["etu"] },
-      "label": ["Not referenced by any channel source"],
+      "structure": {
+        "path_pattern": "demoapp://deeplink/settings"
+      },
+      "valid_user_types": {
+        "allowed": [
+          "etu"
+        ]
+      },
+      "label": [
+        "Not referenced by any channel source"
+      ],
       "query_parameters": []
     }
   ]

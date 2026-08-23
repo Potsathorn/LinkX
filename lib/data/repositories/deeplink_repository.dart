@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../datasources/deeplink_spec_source.dart';
 import '../models/channel_label.dart';
 import '../models/deeplink_entry.dart';
+import '../models/onelink_config.dart';
 import '../models/user_type.dart';
 
 class DeeplinkRepository extends ChangeNotifier {
@@ -15,6 +16,7 @@ class DeeplinkRepository extends ChangeNotifier {
   String get label => _spec.label;
   DateTime? get importedAt => _spec.importedAt;
   bool get isExample => _spec.isExample;
+  OneLinkConfig get oneLink => _spec.oneLink;
 
   int get count => _spec.entries.length;
 

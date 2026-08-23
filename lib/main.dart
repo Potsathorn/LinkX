@@ -10,18 +10,22 @@ import 'data/datasources/deeplink_spec_source.dart';
 import 'data/datasources/local_storage.dart';
 import 'data/repositories/deeplink_repository.dart';
 import 'data/repositories/history_repository.dart';
+import 'data/repositories/onelink_repository.dart';
 import 'data/repositories/usage_repository.dart';
 import 'services/deeplink_form_service.dart';
 import 'services/spec_import_service.dart';
 import 'services/launcher_service.dart';
 import 'services/link_action_runner.dart';
 import 'services/link_builder_service.dart';
+import 'services/onelink_gateway.dart';
+import 'services/onelink_service.dart';
 import 'services/qr_service.dart';
 import 'services/share_service.dart';
 import 'viewmodels/catalogue_viewmodel.dart';
 import 'viewmodels/generator_viewmodel.dart';
 import 'viewmodels/history_viewmodel.dart';
 import 'viewmodels/home_viewmodel.dart';
+import 'viewmodels/onelink_viewmodel.dart';
 import 'viewmodels/spec_viewmodel.dart';
 
 Future<void> main() async {
@@ -109,6 +113,21 @@ class _LinkXAppState extends State<LinkXApp> {
             runner: c.read<LinkActionRunner>(),
             deeplinkRepository: c.read<DeeplinkRepository>(),
             historyRepository: c.read<HistoryRepository>(),
+          ),
+        ),
+        ChangeNotifierProvider<OneLinkRepository>(
+          create: (_) => OneLinkRepository(widget.storage),
+        ),
+        Provider<OneLinkGateway>(create: (_) => AppsFlyerOneLinkGateway()),
+        ProxyProvider2<OneLinkGateway, OneLinkRepository, OneLinkService>(
+          update: (_, OneLinkGateway gateway, OneLinkRepository repo, __) =>
+              OneLinkService(gateway: gateway, repository: repo),
+        ),
+        ChangeNotifierProvider<OneLinkViewModel>(
+          create: (BuildContext c) => OneLinkViewModel(
+            service: c.read<OneLinkService>(),
+            deeplinkRepository: c.read<DeeplinkRepository>(),
+            sourceController: c.read<HomeViewModel>().linkController,
           ),
         ),
         ChangeNotifierProvider<GeneratorViewModel>(

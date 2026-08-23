@@ -27,9 +27,13 @@ List<DeeplinkEntry> loadRealSpecEntries() {
       .parse(File(kRealSpecPath).readAsStringSync());
 }
 
+ParsedSpec loadFixtureSpec() =>
+    const DeeplinkSpecSource().parseSpec(File(kFixturePath).readAsStringSync());
+
 SpecLoadResult fixtureSpec({SpecOrigin origin = SpecOrigin.bundled}) {
   return SpecLoadResult(
     entries: loadSpecEntries(),
+    oneLink: loadFixtureSpec().oneLink,
     origin: origin,
     label: 'sample_spec.json',
   );

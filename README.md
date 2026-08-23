@@ -190,6 +190,59 @@ the shell branch instead of covering the navigation bar.
 
 ---
 
+## OneLink generation
+
+The spec's optional `onelink.afOption` block configures AppsFlyer per
+environment:
+
+```json
+{ "env": "SIT", "afDevKey": "…", "afAppleId": "…", "afOneLinkId": "…" }
+```
+
+`afDevKey` is a **real credential**. It is the reason `deeplink_spec.json` must
+stay out of version control — before this block existed the file held internal
+data but no secrets.
+
+The card appears on Home under the launcher and stays hidden entirely when the
+loaded spec has no `onelink` block. Generation is gated three ways:
+
+| Gate | Rule |
+|------|------|
+| Link shape | must start with `cardx://deeplink` — nothing else can be wrapped |
+| Environment | only `SIT` and `UAT`; any other entry in the spec is dropped at parse time |
+| Explicit choice | no environment is preselected, so a tester cannot generate against the wrong one by reflex |
+
+The request carries exactly three custom params, two of them fixed:
+
+```dart
+AppsFlyerInviteLinkParams(customParams: {
+  'af_dp': '<the cardx deeplink>',
+  'af_force_deeplink': 'true',
+  'openExternalBrowser': '1',
+})
+```
+
+### The cache is keyed on (env, af_dp)
+
+Asking for a link that was already generated for the same deeplink *and* the
+same environment returns the stored one and never reaches AppsFlyer. The result
+is persisted, so it survives a restart, and the card says whether the link in
+front of you was generated now or reused.
+
+### Why the SDK sits behind a gateway
+
+[OneLinkGateway](lib/services/onelink_gateway.dart) is an interface;
+`AppsFlyerOneLinkGateway` is the only implementation that touches the SDK. That
+keeps every validation, gating and caching rule testable without a network call
+or an AppsFlyer account — the service tests run against a fake gateway and
+assert on the exact `customParams` map that would have been sent.
+
+It also isolates one awkward detail: `AppsflyerSdk` is a singleton whose factory
+ignores new options once constructed. The gateway therefore reassigns
+`afOptions` and re-runs `initSdk` when the dev key changes, and calls
+`setAppInviteOneLinkID` whenever the chosen environment's template differs from
+the active one.
+
 ## Ad-hoc links
 
 The Home launcher builds a `GeneratedLink.adHoc`, which carries an empty

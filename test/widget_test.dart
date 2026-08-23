@@ -327,6 +327,60 @@ void main() {
     expect(find.byType(DeeplinkCard), findsNWidgets(3));
   });
 
+  testWidgets('the onelink card stays hidden for a non-deeplink',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+
+    expect(find.text('ONELINK'), findsOneWidget);
+    expect(
+        find.textContaining('Available once the link above'), findsOneWidget);
+    expect(find.text('SIT'), findsNothing);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
+      'https://example.com/promo',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+        find.textContaining('Available once the link above'), findsOneWidget);
+    expect(find.text('SIT'), findsNothing);
+  });
+
+  testWidgets('a cardx deeplink reveals the environment gate',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
+      'cardx://deeplink/accounts?category=cc',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('SIT'), findsOneWidget);
+    expect(find.text('UAT'), findsOneWidget);
+    expect(find.text('PROD'), findsNothing);
+
+    expect(
+      tester
+          .widget<FilledButton>(
+              find.widgetWithText(FilledButton, 'Choose an environment'))
+          .onPressed,
+      isNull,
+    );
+
+    await tester.tap(find.text('SIT'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester
+          .widget<FilledButton>(
+              find.widgetWithText(FilledButton, 'Generate OneLink'))
+          .onPressed,
+      isNotNull,
+    );
+  });
+
   testWidgets('the history tab starts empty', (WidgetTester tester) async {
     await pumpApp(tester);
 

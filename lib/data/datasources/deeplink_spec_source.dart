@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../core/constants/app_config.dart';
 import '../models/deeplink_entry.dart';
+import '../models/onelink_config.dart';
 import 'spec_store.dart';
 
 enum SpecOrigin {
@@ -19,17 +20,27 @@ enum SpecOrigin {
 }
 
 @immutable
+class ParsedSpec {
+  const ParsedSpec({required this.entries, required this.oneLink});
+
+  final List<DeeplinkEntry> entries;
+  final OneLinkConfig oneLink;
+}
+
+@immutable
 class SpecLoadResult {
   const SpecLoadResult({
     required this.entries,
     required this.origin,
     required this.label,
+    this.oneLink = OneLinkConfig.empty,
     this.importedAt,
   });
 
   final List<DeeplinkEntry> entries;
   final SpecOrigin origin;
   final String label;
+  final OneLinkConfig oneLink;
   final DateTime? importedAt;
 
   bool get isExample => origin.isExample;
@@ -61,8 +72,10 @@ class DeeplinkSpecSource {
     final StoredSpec? stored = await store.read();
     if (stored != null) {
       try {
+        final ParsedSpec parsed = parseSpec(stored.raw);
         return SpecLoadResult(
-          entries: parse(stored.raw),
+          entries: parsed.entries,
+          oneLink: parsed.oneLink,
           origin: SpecOrigin.imported,
           label: stored.label,
           importedAt: stored.importedAt,
@@ -73,21 +86,28 @@ class DeeplinkSpecSource {
     }
 
     try {
+      final ParsedSpec parsed = parseSpec(await source.loadString(assetPath));
       return SpecLoadResult(
-        entries: parse(await source.loadString(assetPath)),
+        entries: parsed.entries,
+        oneLink: parsed.oneLink,
         origin: SpecOrigin.bundled,
         label: assetPath.split('/').last,
       );
     } catch (_) {
+      final ParsedSpec parsed =
+          parseSpec(await source.loadString(exampleAssetPath));
       return SpecLoadResult(
-        entries: parse(await source.loadString(exampleAssetPath)),
+        entries: parsed.entries,
+        oneLink: parsed.oneLink,
         origin: SpecOrigin.example,
         label: exampleAssetPath.split('/').last,
       );
     }
   }
 
-  List<DeeplinkEntry> parse(String raw) {
+  List<DeeplinkEntry> parse(String raw) => parseSpec(raw).entries;
+
+  ParsedSpec parseSpec(String raw) {
     final Object? decoded;
     try {
       decoded = jsonDecode(raw);
@@ -120,6 +140,14 @@ class DeeplinkSpecSource {
           ? byRank
           : a.destinationPage.compareTo(b.destinationPage);
     });
-    return entries;
+
+    return ParsedSpec(
+      entries: entries,
+      oneLink: OneLinkConfig.fromJson(
+        decoded['onelink'] is Map
+            ? Map<String, dynamic>.from(decoded['onelink'] as Map)
+            : null,
+      ),
+    );
   }
 }
