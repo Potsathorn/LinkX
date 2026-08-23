@@ -7,10 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 const double kCanvas = 1024;
 
-const Color kVoid = Color(0xFF000000);
-const Color kCore = Color(0xFF14213D);
-const Color kCyan = Color(0xFFFCA311);
-const Color kInk = Color(0xFFE4E4E4);
+const Color kVoid = Color(0xFF0D0D0D);
+const Color kCore = Color(0xFF1A1A1A);
+const Color kAmber = Color(0xFFF08A16);
+const Color kInk = Color(0xFFFFFFFF);
 
 void paintBackground(Canvas canvas, {required bool detail}) {
   const Rect rect = Rect.fromLTWH(0, 0, kCanvas, kCanvas);
@@ -19,35 +19,18 @@ void paintBackground(Canvas canvas, {required bool detail}) {
     rect,
     Paint()
       ..shader = const RadialGradient(
-        center: Alignment(-0.15, -0.3),
-        radius: 1.05,
+        center: Alignment(-0.2, -0.35),
+        radius: 1.15,
         colors: <Color>[kCore, kVoid],
       ).createShader(rect),
   );
-
-  if (!detail) return;
-
-  final Paint minor = Paint()
-    ..color = kCore.withValues(alpha: 0.55)
-    ..strokeWidth = 2;
-  final Paint major = Paint()
-    ..color = kCore
-    ..strokeWidth = 2.5;
-
-  int i = 0;
-  for (double p = 0; p <= kCanvas; p += 64) {
-    final Paint paint = i % 4 == 0 ? major : minor;
-    canvas.drawLine(Offset(p, 0), Offset(p, kCanvas), paint);
-    canvas.drawLine(Offset(0, p), Offset(kCanvas, p), paint);
-    i++;
-  }
 }
 
 void paintReticle(Canvas canvas, {required double alpha}) {
   const double inset = 152;
   const double arm = 92;
   final Paint paint = Paint()
-    ..color = kCyan.withValues(alpha: alpha)
+    ..color = kAmber.withValues(alpha: alpha)
     ..strokeWidth = 20
     ..strokeCap = StrokeCap.butt
     ..strokeJoin = StrokeJoin.miter
@@ -74,20 +57,38 @@ void paintReticle(Canvas canvas, {required double alpha}) {
 }
 
 const double kDiagonal = 0.7853981633974483;
+const double kCentre = kCanvas / 2;
 
-void _chainLink(
+Offset _alongUpRight(double distance) => Offset(
+      kCentre + distance * 0.7071067811865476,
+      kCentre - distance * 0.7071067811865476,
+    );
+
+void _slashSegment(
   Canvas canvas, {
-  required double rotation,
+  required double from,
+  required double to,
+  required Paint paint,
+}) {
+  canvas.save();
+  canvas.translate(kCentre, kCentre);
+  canvas.rotate(kDiagonal);
+  canvas.drawLine(Offset(from, 0), Offset(to, 0), paint);
+  canvas.restore();
+}
+
+void _chainRing(
+  Canvas canvas, {
+  required Offset centre,
   required double scale,
   required Paint paint,
 }) {
-  const double centre = kCanvas / 2;
-  final double length = 700 * scale;
-  final double width = 196 * scale;
+  final double length = 344 * scale;
+  final double width = 186 * scale;
 
   canvas.save();
-  canvas.translate(centre, centre);
-  canvas.rotate(rotation);
+  canvas.translate(centre.dx, centre.dy);
+  canvas.rotate(-kDiagonal);
   canvas.drawRRect(
     RRect.fromRectAndRadius(
       Rect.fromCenter(center: Offset.zero, width: length, height: width),
@@ -98,67 +99,75 @@ void _chainLink(
   canvas.restore();
 }
 
-void _solidBar(
-  Canvas canvas, {
-  required double rotation,
-  required double scale,
-  required Paint paint,
-}) {
-  const double centre = kCanvas / 2;
-  final double arm = 214 * scale;
-
-  canvas.save();
-  canvas.translate(centre, centre);
-  canvas.rotate(rotation);
-  canvas.drawLine(Offset(-arm, 0), Offset(arm, 0), paint);
-  canvas.restore();
-}
-
-Paint _ringPaint(Color color, double stroke) => Paint()
-  ..color = color
-  ..strokeWidth = stroke
-  ..style = PaintingStyle.stroke;
-
-Paint _barPaint(Color color, double stroke) => Paint()
-  ..color = color
-  ..strokeWidth = stroke
-  ..strokeCap = StrokeCap.round;
+Paint _stroke(Color color, double width, {StrokeCap cap = StrokeCap.butt}) =>
+    Paint()
+      ..color = color
+      ..strokeWidth = width
+      ..strokeCap = cap
+      ..style = PaintingStyle.stroke;
 
 void paintMark(Canvas canvas, {required double scale, required bool detail}) {
   if (scale <= 0) return;
 
-  const double centre = kCanvas / 2;
-  final double stroke = (detail ? 62 : 96) * scale;
-
-  void draw(double rotation, Paint paint) {
-    if (detail) {
-      _chainLink(canvas, rotation: rotation, scale: scale, paint: paint);
-    } else {
-      _solidBar(canvas, rotation: rotation, scale: scale, paint: paint);
-    }
-  }
-
-  if (detail) {
-    draw(
-      -kDiagonal,
-      Paint()
-        ..color = kCyan.withValues(alpha: 0.5)
-        ..strokeWidth = stroke * 1.7
-        ..style = PaintingStyle.stroke
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, stroke * 0.7),
+  if (!detail) {
+    final double bar = 126 * scale;
+    _slashSegment(
+      canvas,
+      from: -352 * scale,
+      to: 352 * scale,
+      paint: _stroke(kInk, bar, cap: StrokeCap.round),
     );
+    canvas.save();
+    canvas.translate(kCentre, kCentre);
+    canvas.rotate(-kDiagonal);
+    canvas.drawLine(
+      Offset(-352 * scale, 0),
+      Offset(352 * scale, 0),
+      _stroke(kAmber, bar, cap: StrokeCap.round),
+    );
+    canvas.restore();
+    return;
   }
 
-  final Paint ink = detail ? _ringPaint(kInk, stroke) : _barPaint(kInk, stroke);
-  final Paint cyan =
-      detail ? _ringPaint(kCyan, stroke) : _barPaint(kCyan, stroke);
+  final double barWidth = 104 * scale;
+  final double ringStroke = 58 * scale;
+  final Offset amberCentre = _alongUpRight(-172 * scale);
+  final Offset whiteCentre = _alongUpRight(172 * scale);
 
-  draw(kDiagonal, ink);
-  draw(-kDiagonal, cyan);
+  _slashSegment(
+    canvas,
+    from: -400 * scale,
+    to: -60 * scale,
+    paint: _stroke(kInk, barWidth),
+  );
+  _slashSegment(
+    canvas,
+    from: 60 * scale,
+    to: 400 * scale,
+    paint: _stroke(kInk, barWidth),
+  );
+
+  _chainRing(
+    canvas,
+    centre: whiteCentre,
+    scale: scale,
+    paint: _stroke(kInk, ringStroke),
+  );
+  _chainRing(
+    canvas,
+    centre: amberCentre,
+    scale: scale,
+    paint: _stroke(kAmber, ringStroke),
+  );
 
   canvas.save();
-  canvas.clipRect(const Rect.fromLTWH(0, 0, centre, centre));
-  draw(kDiagonal, ink);
+  canvas.clipRect(const Rect.fromLTWH(kCentre, 0, kCentre, kCentre));
+  _chainRing(
+    canvas,
+    centre: whiteCentre,
+    scale: scale,
+    paint: _stroke(kInk, ringStroke),
+  );
   canvas.restore();
 }
 
@@ -174,7 +183,6 @@ Future<Uint8List> render(
 
   if (withBackground) {
     paintBackground(canvas, detail: detail);
-    if (detail) paintReticle(canvas, alpha: 0.55);
   }
   paintMark(canvas, scale: markScale, detail: detail);
 
