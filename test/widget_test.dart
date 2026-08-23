@@ -218,7 +218,7 @@ void main() {
     expect(find.text('Generated link'), findsOneWidget);
     expect(
       find.textContaining(
-        'demoapp://deeplink/offer-detail?offerCode=OFFER26',
+        'cardx://deeplink/offer-detail?offerCode=OFFER26',
         findRichText: true,
       ),
       findsWidgets,
@@ -239,7 +239,7 @@ void main() {
 
     expect(
       find.textContaining(
-        'demoapp://deeplink/inbox?folder=alpha',
+        'cardx://deeplink/inbox?folder=alpha',
         findRichText: true,
       ),
       findsWidgets,
@@ -298,7 +298,7 @@ void main() {
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
-      'demoapp://deeplink/inbox?folder=alpha',
+      'cardx://deeplink/inbox?folder=alpha',
     );
     await tester.pumpAndSettle();
 
@@ -353,7 +353,7 @@ void main() {
 
     await tester.enterText(
       find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
-      'cardx://deeplink/accounts?category=cc',
+      'cardx://deeplink/inbox?folder=alpha',
     );
     await tester.pumpAndSettle();
 
@@ -378,6 +378,58 @@ void main() {
               find.widgetWithText(FilledButton, 'Generate OneLink'))
           .onPressed,
       isNotNull,
+    );
+  });
+
+  testWidgets('the generator gates OneLink behind an enabled Launch',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+    await openEntry(tester, 'OfferDetailPage');
+
+    expect(find.text('ONELINK'), findsOneWidget);
+    expect(
+      find.textContaining('Launch is still disabled'),
+      findsOneWidget,
+      reason: 'offerCode is required, so Launch is off and so is OneLink',
+    );
+    expect(find.text('SIT'), findsNothing);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Required value'),
+      'OFFER26',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Launch is still disabled'), findsNothing);
+    expect(find.text('SIT'), findsOneWidget);
+    expect(find.text('UAT'), findsOneWidget);
+  });
+
+  testWidgets('home and generator keep separate OneLink state',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
+      'cardx://deeplink/inbox?folder=alpha',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('SIT'));
+    await tester.pumpAndSettle();
+    expect(
+        find.widgetWithText(FilledButton, 'Generate OneLink'), findsOneWidget);
+
+    await openEntry(tester, 'OfferDetailPage');
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Required value'),
+      'OFFER26',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.widgetWithText(FilledButton, 'Choose an environment'),
+      findsOneWidget,
+      reason: 'the generator has its own environment choice',
     );
   });
 

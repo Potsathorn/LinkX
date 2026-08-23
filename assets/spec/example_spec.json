@@ -20,7 +20,7 @@
       "rank": 1,
       "destination_page": "ExampleInboxPage",
       "structure": {
-        "path_pattern": "demoapp://deeplink/inbox?folder={folder}&view={view}"
+        "path_pattern": "cardx://deeplink/inbox?folder={folder}&view={view}"
       },
       "valid_user_types": {
         "allowed": [
@@ -60,7 +60,7 @@
       "rank": 2,
       "destination_page": "ExampleCatalogPage",
       "structure": {
-        "path_pattern": "demoapp://deeplink/catalog?groupCode={groupCode}&itemCode={itemCode}"
+        "path_pattern": "cardx://deeplink/catalog?groupCode={groupCode}&itemCode={itemCode}"
       },
       "valid_user_types": {
         "allowed": [
@@ -98,7 +98,7 @@
       "rank": 3,
       "destination_page": "ExampleItemPage",
       "structure": {
-        "path_pattern": "demoapp://deeplink/catalog/item/{itemId}"
+        "path_pattern": "cardx://deeplink/catalog/item/{itemId}"
       },
       "valid_user_types": {
         "allowed": [
@@ -115,7 +115,7 @@
       "rank": 4,
       "destination_page": "ExampleHomePage",
       "structure": {
-        "path_pattern": "demoapp://deeplink/home | demoapp://deeplink/landing"
+        "path_pattern": "cardx://deeplink/home | cardx://deeplink/landing"
       },
       "valid_user_types": {
         "allowed": [
@@ -135,7 +135,7 @@
       "rank": 5,
       "destination_page": "ExampleSettingsPage",
       "structure": {
-        "path_pattern": "demoapp://deeplink/settings"
+        "path_pattern": "cardx://deeplink/settings"
       },
       "valid_user_types": {
         "allowed": [

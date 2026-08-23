@@ -17,10 +17,10 @@ import '../../services/link_action_runner.dart';
 import '../../services/onelink_service.dart';
 import '../catalogue/widgets/deeplink_card.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/onelink_card.dart';
 import '../widgets/section_header.dart';
 import '../widgets/share_origin.dart';
 import 'widgets/launcher_card.dart';
-import 'widgets/onelink_card.dart';
 import 'widgets/recent_list.dart';
 
 class HomeView extends StatelessWidget {
@@ -36,7 +36,7 @@ class HomeView extends StatelessWidget {
     Future<ActionResult> Function(GeneratedLink link) action,
   ) async {
     final GeneratedOneLink? generated =
-        context.read<OneLinkViewModel>().generated;
+        context.read<HomeOneLinkViewModel>().generated;
     if (generated == null) return;
 
     final ActionResult result =
@@ -53,7 +53,7 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final HomeViewModel vm = context.watch<HomeViewModel>();
     final CatalogueViewModel catalogue = context.watch<CatalogueViewModel>();
-    final OneLinkViewModel oneLink = context.watch<OneLinkViewModel>();
+    final OneLinkViewModel oneLink = context.watch<HomeOneLinkViewModel>();
     final List<DeeplinkEntry> top = vm.topRanked;
 
     return Scaffold(

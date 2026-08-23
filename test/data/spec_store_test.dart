@@ -28,7 +28,7 @@ void main() {
   const String validSpec = '''
   {"deeplinks": [
     {"rank": 1, "destination_page": "ImportedPage",
-     "structure": {"path_pattern": "demoapp://deeplink/imported"},
+     "structure": {"path_pattern": "cardx://deeplink/imported"},
      "valid_user_types": {"allowed": ["etu"]},
      "label": ["Push Noti"], "query_parameters": []}
   ]}''';

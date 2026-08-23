@@ -37,7 +37,7 @@ void main() {
   late OneLinkService service;
 
   final OneLinkConfig config = loadFixtureSpec().oneLink;
-  const String deeplink = 'cardx://deeplink/accounts?category=cc';
+  const String deeplink = 'cardx://deeplink/inbox?folder=alpha';
 
   setUp(() async {
     SharedPreferences.setMockInitialValues(<String, Object>{});

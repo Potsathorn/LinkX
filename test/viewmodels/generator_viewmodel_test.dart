@@ -62,11 +62,10 @@ void main() {
       vm.loadEntry(entryByPattern('/inbox?folder='));
 
       expect(vm.hasEntry, isTrue);
-      expect(
-          vm.variant, 'demoapp://deeplink/inbox?folder={folder}&view={view}');
+      expect(vm.variant, 'cardx://deeplink/inbox?folder={folder}&view={view}');
       expect(vm.parameters, hasLength(6));
       expect(vm.testedUserType, UserType.etu);
-      expect(vm.url, 'demoapp://deeplink/inbox');
+      expect(vm.url, 'cardx://deeplink/inbox');
     });
 
     test('a conditional deeplink is not ready until one value is set', () {
@@ -75,7 +74,7 @@ void main() {
 
       vm.updateParameter('view', 'compact');
       expect(vm.hasLink, isTrue);
-      expect(vm.url, 'demoapp://deeplink/inbox?view=compact');
+      expect(vm.url, 'cardx://deeplink/inbox?view=compact');
     });
 
     test('a required deeplink reports the missing parameter', () {
@@ -86,7 +85,7 @@ void main() {
 
       vm.updateParameter('offerCode', 'OFFER26');
       expect(vm.hasLink, isTrue);
-      expect(vm.url, 'demoapp://deeplink/offer-detail?offerCode=OFFER26');
+      expect(vm.url, 'cardx://deeplink/offer-detail?offerCode=OFFER26');
     });
 
     test('a parameterless deeplink is immediately ready', () {
@@ -94,7 +93,7 @@ void main() {
 
       expect(vm.parameters, isEmpty);
       expect(vm.hasLink, isTrue);
-      expect(vm.url, 'demoapp://deeplink/profile/addresses');
+      expect(vm.url, 'cardx://deeplink/profile/addresses');
     });
 
     test('groups parameters by requirement', () {
@@ -154,10 +153,10 @@ void main() {
   group('variants', () {
     test('selecting a variant rebuilds the url', () {
       vm.loadEntry(entryByPattern('/feed-list'));
-      expect(vm.url, 'demoapp://deeplink/feed-list');
+      expect(vm.url, 'cardx://deeplink/feed-list');
 
-      vm.selectVariant('demoapp://deeplink/feed');
-      expect(vm.url, 'demoapp://deeplink/feed');
+      vm.selectVariant('cardx://deeplink/feed');
+      expect(vm.url, 'cardx://deeplink/feed');
     });
   });
 

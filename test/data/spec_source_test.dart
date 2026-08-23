@@ -32,7 +32,7 @@ void main() {
   const String realSpec = '''
   {"deeplinks": [
     {"rank": 1, "destination_page": "RealPage",
-     "structure": {"path_pattern": "demoapp://deeplink/real"},
+     "structure": {"path_pattern": "cardx://deeplink/real"},
      "valid_user_types": {"allowed": ["etu"]},
      "label": ["Push Noti"], "query_parameters": []}
   ]}''';

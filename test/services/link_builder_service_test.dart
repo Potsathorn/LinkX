@@ -54,20 +54,19 @@ void main() {
       expect(
         buildUrl(
             accounts, <String, String>{'folder': 'alpha', 'view': 'compact'}),
-        'demoapp://deeplink/inbox?folder=alpha&view=compact',
+        'cardx://deeplink/inbox?folder=alpha&view=compact',
       );
     });
 
     test('omits empty parameters entirely', () {
       expect(
         buildUrl(accounts, <String, String>{'folder': 'alpha'}),
-        'demoapp://deeplink/inbox?folder=alpha',
+        'cardx://deeplink/inbox?folder=alpha',
       );
     });
 
     test('produces a bare path when nothing is filled', () {
-      expect(
-          buildUrl(accounts, <String, String>{}), 'demoapp://deeplink/inbox');
+      expect(buildUrl(accounts, <String, String>{}), 'cardx://deeplink/inbox');
     });
 
     test('percent-encodes values with %20 rather than +', () {
@@ -94,7 +93,7 @@ void main() {
         variant: accounts.variants.first,
         parameters: parameters,
       );
-      expect(link.url, 'demoapp://deeplink/inbox?folder=alpha');
+      expect(link.url, 'cardx://deeplink/inbox?folder=alpha');
     });
   });
 
@@ -104,14 +103,14 @@ void main() {
     test('substitutes and encodes the token', () {
       expect(
         buildUrl(accountById, <String, String>{'itemId': 'ENC/123'}),
-        'demoapp://deeplink/inbox/ENC%2F123',
+        'cardx://deeplink/inbox/ENC%2F123',
       );
     });
 
     test('leaves the token visible while unfilled', () {
       expect(
         buildUrl(accountById, <String, String>{}),
-        'demoapp://deeplink/inbox/{itemId}',
+        'cardx://deeplink/inbox/{itemId}',
       );
     });
 
@@ -119,7 +118,7 @@ void main() {
       final DeeplinkEntry entry = entryByPattern('/catalog/item/');
       expect(
         buildUrl(entry, <String, String>{'cmsId|itemCode': 'CMS99'}),
-        'demoapp://deeplink/catalog/item/CMS99',
+        'cardx://deeplink/catalog/item/CMS99',
       );
     });
   });
@@ -129,11 +128,11 @@ void main() {
 
     test('builds from the selected variant', () {
       expect(buildUrl(campaigns, <String, String>{}),
-          'demoapp://deeplink/feed-list');
+          'cardx://deeplink/feed-list');
       expect(
         buildUrl(campaigns, <String, String>{},
-            variant: 'demoapp://deeplink/feed'),
-        'demoapp://deeplink/feed',
+            variant: 'cardx://deeplink/feed'),
+        'cardx://deeplink/feed',
       );
     });
   });
@@ -226,7 +225,7 @@ void main() {
 
   group('validation — label', () {
     test('warns that an unreferenced deeplink has no channel source', () {
-      final DeeplinkEntry entry = entryByPattern('demoapp://deeplink/settings');
+      final DeeplinkEntry entry = entryByPattern('cardx://deeplink/settings');
       final LinkValidation result = validate(entry, <String, String>{});
 
       expect(

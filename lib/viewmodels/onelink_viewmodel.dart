@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../data/models/onelink_config.dart';
 import '../data/repositories/deeplink_repository.dart';
@@ -8,20 +8,26 @@ class OneLinkViewModel extends ChangeNotifier {
   OneLinkViewModel({
     required OneLinkService service,
     required DeeplinkRepository deeplinkRepository,
-    required TextEditingController sourceController,
+    required Listenable source,
+    required String Function() readSource,
+    required bool Function() readReady,
   })  : _service = service,
         _deeplinkRepository = deeplinkRepository,
-        _sourceController = sourceController {
+        _source = source,
+        _readSource = readSource,
+        _readReady = readReady {
     _deeplinkRepository.addListener(_onSpecChanged);
-    _sourceController.addListener(_onSourceChanged);
-    _source = _sourceController.text.trim();
+    _source.addListener(_onSourceChanged);
+    _link = _readSource().trim();
   }
 
   final OneLinkService _service;
   final DeeplinkRepository _deeplinkRepository;
-  final TextEditingController _sourceController;
+  final Listenable _source;
+  final String Function() _readSource;
+  final bool Function() _readReady;
 
-  String _source = '';
+  String _link = '';
   String? _env;
   bool _isBusy = false;
   OneLinkOutcome? _outcome;
@@ -39,20 +45,10 @@ class OneLinkViewModel extends ChangeNotifier {
   String? get error =>
       _outcome != null && !_outcome!.isSuccess ? _outcome!.message : null;
 
-  bool get isEligible => OneLinkService.isEligible(_source);
+  bool get isSourceReady => _readReady();
+  bool get isEligible => isSourceReady && OneLinkService.isEligible(_link);
   bool get canGenerate =>
       isConfigured && isEligible && _env != null && !_isBusy;
-
-  Map<String, String> get previewParams => _service.customParamsFor(_source);
-
-  void _onSourceChanged() {
-    final String next = _sourceController.text.trim();
-    if (_source == next) return;
-
-    _source = next;
-    _outcome = null;
-    notifyListeners();
-  }
 
   void selectEnvironment(String? value) {
     if (_env == value) return;
@@ -66,13 +62,16 @@ class OneLinkViewModel extends ChangeNotifier {
     if (_isBusy) {
       return const OneLinkOutcome.rejected(OneLinkRejection.noEnvironment);
     }
+    if (!isSourceReady) {
+      return const OneLinkOutcome.rejected(OneLinkRejection.notReady);
+    }
 
     _isBusy = true;
     notifyListeners();
     try {
       final OneLinkOutcome result = await _service.generate(
         config: config,
-        deeplink: _source,
+        deeplink: _link,
         env: _env,
       );
       _outcome = result;
@@ -81,6 +80,18 @@ class OneLinkViewModel extends ChangeNotifier {
       _isBusy = false;
       notifyListeners();
     }
+  }
+
+  void _onSourceChanged() {
+    final String next = _readSource().trim();
+    if (_link == next) {
+      notifyListeners();
+      return;
+    }
+
+    _link = next;
+    _outcome = null;
+    notifyListeners();
   }
 
   void _onSpecChanged() {
@@ -92,7 +103,27 @@ class OneLinkViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _deeplinkRepository.removeListener(_onSpecChanged);
-    _sourceController.removeListener(_onSourceChanged);
+    _source.removeListener(_onSourceChanged);
     super.dispose();
   }
+}
+
+class HomeOneLinkViewModel extends OneLinkViewModel {
+  HomeOneLinkViewModel({
+    required super.service,
+    required super.deeplinkRepository,
+    required super.source,
+    required super.readSource,
+    required super.readReady,
+  });
+}
+
+class GeneratorOneLinkViewModel extends OneLinkViewModel {
+  GeneratorOneLinkViewModel({
+    required super.service,
+    required super.deeplinkRepository,
+    required super.source,
+    required super.readSource,
+    required super.readReady,
+  });
 }

@@ -9,6 +9,7 @@ enum OneLinkRejection {
   notADeeplink('OneLink generation only works for links that start with '
       '${AppConfig.deeplinkPrefix}.'),
   noEnvironment('Choose SIT or UAT before generating.'),
+  notReady('Finish the deeplink first — Launch is still disabled.'),
   unknownEnvironment('That environment is not in the spec.');
 
   const OneLinkRejection(this.message);

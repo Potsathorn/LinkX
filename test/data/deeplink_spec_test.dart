@@ -55,7 +55,7 @@ void main() {
          "valid_user_types": {"allowed": ["etu"]},
          "label": ["Push Noti"], "query_parameters": []},
         {"rank": 2, "destination_page": "Fine",
-         "structure": {"path_pattern": "demoapp://deeplink/fine"},
+         "structure": {"path_pattern": "cardx://deeplink/fine"},
          "valid_user_types": {"allowed": ["etu"]},
          "label": ["Push Noti"], "query_parameters": []}
       ]}''';
@@ -91,7 +91,7 @@ void main() {
       expect(entry.destinationPage, 'InboxConnectorPage');
       expect(
         entry.pathPattern,
-        'demoapp://deeplink/inbox?folder={folder}&view={view}',
+        'cardx://deeplink/inbox?folder={folder}&view={view}',
       );
     });
 
@@ -148,15 +148,15 @@ void main() {
       final DeeplinkEntry entry = entryByPattern('/feed-list');
       expect(entry.hasVariants, isTrue);
       expect(entry.variants, <String>[
-        'demoapp://deeplink/feed-list',
-        'demoapp://deeplink/feed',
+        'cardx://deeplink/feed-list',
+        'cardx://deeplink/feed',
       ]);
     });
 
     test('a single pattern yields exactly one variant', () {
       final DeeplinkEntry entry = entryByPattern('/settings');
       expect(entry.hasVariants, isFalse);
-      expect(entry.variants, <String>['demoapp://deeplink/settings']);
+      expect(entry.variants, <String>['cardx://deeplink/settings']);
     });
 
     test('a token with alternatives keeps both names for display', () {

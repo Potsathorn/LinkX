@@ -203,14 +203,16 @@ environment:
 stay out of version control — before this block existed the file held internal
 data but no secrets.
 
-The card appears on Home under the launcher and stays hidden entirely when the
-loaded spec has no `onelink` block. Generation is gated three ways:
+The card appears in two places — on Home under the launcher, and on the
+generator under the link preview — and stays hidden entirely when the loaded
+spec has no `onelink` block. Generation is gated three ways:
 
 | Gate | Rule |
 |------|------|
 | Link shape | must start with `cardx://deeplink` — nothing else can be wrapped |
 | Environment | only `SIT` and `UAT`; any other entry in the spec is dropped at parse time |
 | Explicit choice | no environment is preselected, so a tester cannot generate against the wrong one by reflex |
+| Launch parity | the card is only live when that screen's Launch button is — on the generator that means every required parameter is filled, so a URL still holding a `{token}` can never be wrapped |
 
 The request carries exactly three custom params, two of them fixed:
 
@@ -221,6 +223,18 @@ AppsFlyerInviteLinkParams(customParams: {
   'openExternalBrowser': '1',
 })
 ```
+
+### The two cards are independent
+
+`OneLinkViewModel` takes its link from a `Listenable` plus two closures — one
+reading the link, one reading whether that screen is ready — so Home feeds it a
+`TextEditingController` while the generator feeds it the `GeneratorViewModel`
+itself. Each screen gets its own instance (`HomeOneLinkViewModel`,
+`GeneratorOneLinkViewModel`), which is what keeps an environment chosen on one
+tab from silently applying on the other.
+
+The cache underneath is shared, so a link generated from either screen is reused
+by both.
 
 ### The cache is keyed on (env, af_dp)
 

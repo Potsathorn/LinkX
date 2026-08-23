@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_config.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/date_formatter.dart';
-import '../../../data/models/onelink_config.dart';
-import '../../../viewmodels/onelink_viewmodel.dart';
-import '../../widgets/spec_chips.dart';
+import '../../core/constants/app_config.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/utils/date_formatter.dart';
+import '../../data/models/onelink_config.dart';
+import '../../viewmodels/onelink_viewmodel.dart';
+import 'spec_chips.dart';
 
 class OneLinkCard extends StatelessWidget {
   const OneLinkCard({
@@ -16,6 +16,7 @@ class OneLinkCard extends StatelessWidget {
     required this.onLaunch,
     required this.onShare,
     required this.onQr,
+    this.notReadyMessage,
   });
 
   final OneLinkViewModel vm;
@@ -24,6 +25,7 @@ class OneLinkCard extends StatelessWidget {
   final VoidCallback onLaunch;
   final VoidCallback onShare;
   final VoidCallback onQr;
+  final String? notReadyMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +53,11 @@ class OneLinkCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           if (!vm.isEligible)
-            const _Notice(
+            _Notice(
               icon: Icons.info_outline,
-              text: 'Available once the link above starts with '
-                  '${AppConfig.deeplinkPrefix}',
+              text: notReadyMessage ??
+                  'Available once the link above starts with '
+                      '${AppConfig.deeplinkPrefix}',
             )
           else ...<Widget>[
             Text('ENVIRONMENT', style: AppTheme.hudLabel(size: 8.5)),

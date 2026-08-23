@@ -6,10 +6,16 @@ import '../../core/router/app_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/action_result.dart';
 import '../../data/models/deeplink_entry.dart';
+import '../../data/models/generated_link.dart';
 import '../../data/models/link_parameter.dart';
+import '../../data/models/onelink_config.dart';
+import '../../services/link_action_runner.dart';
+import '../../services/onelink_service.dart';
 import '../../viewmodels/generator_viewmodel.dart';
+import '../../viewmodels/onelink_viewmodel.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/onelink_card.dart';
 import '../widgets/section_header.dart';
 import '../widgets/share_origin.dart';
 import 'widgets/entry_header_card.dart';
@@ -107,6 +113,8 @@ class _GeneratorForm extends StatelessWidget {
             if (context.mounted) showActionResult(context, result);
           },
         ),
+        const SizedBox(height: 16),
+        const _GeneratorOneLink(),
       ],
     );
   }
@@ -266,6 +274,61 @@ class _ActionBar extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _GeneratorOneLink extends StatelessWidget {
+  const _GeneratorOneLink();
+
+  Future<void> _run(
+    BuildContext context,
+    Future<ActionResult> Function(GeneratedLink link) action,
+  ) async {
+    final GeneratedOneLink? generated =
+        context.read<GeneratorOneLinkViewModel>().generated;
+    if (generated == null) return;
+
+    final ActionResult result =
+        await action(GeneratedLink.adHoc(generated.url));
+    if (context.mounted) showActionResult(context, result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final GeneratorOneLinkViewModel vm =
+        context.watch<GeneratorOneLinkViewModel>();
+
+    return Builder(
+      builder: (BuildContext buttonContext) => OneLinkCard(
+        vm: vm,
+        notReadyMessage:
+            'Fill in every required parameter first — Launch is still disabled.',
+        onGenerate: () async {
+          final OneLinkOutcome outcome = await vm.generate();
+          if (!context.mounted || outcome.isSuccess) return;
+          showActionResult(context, ActionResult.error(outcome.message));
+        },
+        onCopy: () => _run(context,
+            (GeneratedLink l) => context.read<LinkActionRunner>().copy(l)),
+        onLaunch: () => _run(context,
+            (GeneratedLink l) => context.read<LinkActionRunner>().launch(l)),
+        onShare: () => _run(
+          context,
+          (GeneratedLink l) => context.read<LinkActionRunner>().shareUrl(
+                l,
+                origin: shareOriginOf(buttonContext),
+              ),
+        ),
+        onQr: () {
+          final GeneratedOneLink? generated = vm.generated;
+          if (generated == null) return;
+          context.push(
+            AppRoute.qr.path,
+            extra: GeneratedLink.adHoc(generated.url),
+          );
+        },
       ),
     );
   }
