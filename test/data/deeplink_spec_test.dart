@@ -168,6 +168,34 @@ void main() {
     });
   });
 
+  group('multiple destination pages', () {
+    test('splits a comma separated destination page', () {
+      final DeeplinkEntry entry = entryByPattern('/catalog?groupCode=');
+      expect(entry.destinationPages,
+          <String>['CatalogDetailConnectorPage', 'BundleConnectorPage']);
+      expect(entry.primaryDestination, 'CatalogDetailConnectorPage');
+      expect(entry.extraDestinationCount, 1);
+    });
+
+    test('splits a slash separated destination page', () {
+      final DeeplinkEntry entry = entryByPattern('/home');
+      expect(entry.destinationPages, <String>['HomePage', 'VisitorHomePage']);
+      expect(entry.extraDestinationCount, 1);
+    });
+
+    test('a single destination reports no extras', () {
+      final DeeplinkEntry entry = entryByPattern('/offer-detail');
+      expect(entry.destinationPages, <String>['OfferDetailPage']);
+      expect(entry.primaryDestination, 'OfferDetailPage');
+      expect(entry.extraDestinationCount, 0);
+    });
+
+    test('search still matches a secondary destination', () {
+      final DeeplinkEntry entry = entryByPattern('/catalog?groupCode=');
+      expect(entry.matches('BundleConnectorPage'), isTrue);
+    });
+  });
+
   group('facets', () {
     test('every label maps to a known channel', () {
       final Set<ChannelLabel> labels = <ChannelLabel>{

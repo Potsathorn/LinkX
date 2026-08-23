@@ -45,7 +45,7 @@ class LauncherCard extends StatelessWidget {
               IconButton(
                 visualDensity: VisualDensity.compact,
                 tooltip: 'Paste',
-                icon: const Icon(Icons.content_paste_go, size: 17),
+                icon: const Icon(Icons.content_paste, size: 17),
                 onPressed: _paste,
               ),
               IconButton(
@@ -53,6 +53,12 @@ class LauncherCard extends StatelessWidget {
                 tooltip: 'Clear',
                 icon: const Icon(Icons.backspace_outlined, size: 17),
                 onPressed: vm.isEmpty ? null : vm.clear,
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: 'Share',
+                icon: const Icon(Icons.share, size: 17),
+                onPressed: vm.isEmpty ? null : onShare,
               ),
             ],
           ),
@@ -75,7 +81,6 @@ class LauncherCard extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
-                flex: 3,
                 child: FilledButton.icon(
                   onPressed: enabled ? onLaunch : null,
                   icon: vm.isBusy
@@ -90,18 +95,11 @@ class LauncherCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                flex: 2,
                 child: OutlinedButton.icon(
                   onPressed: enabled ? onQr : null,
                   icon: const Icon(Icons.qr_code_2, size: 18),
                   label: const Text('QR'),
                 ),
-              ),
-              const SizedBox(width: 10),
-              IconButton.filledTonal(
-                tooltip: 'Share the link',
-                onPressed: enabled ? onShare : null,
-                icon: const Icon(Icons.ios_share, size: 20),
               ),
             ],
           ),

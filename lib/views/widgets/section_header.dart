@@ -20,12 +20,12 @@ class SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(2, 12, 2, 10),
       child: Row(
         children: <Widget>[
-          Container(width: 2, height: 12, color: accent),
-          const SizedBox(width: 9),
+          Container(width: 3, height: 14, color: accent),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               title.toUpperCase(),
-              style: AppTheme.hudLabel(color: Palette.grey, size: 9.5),
+              style: AppTheme.hudLabel(color: Palette.grey, size: 11),
             ),
           ),
           if (trailing != null) trailing!,

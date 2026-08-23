@@ -54,7 +54,19 @@ class HomeView extends StatelessWidget {
             ),
           ),
           if (vm.hasRecent) ...<Widget>[
-            const SectionHeader(title: 'Recent'),
+            SectionHeader(
+              title: 'Recent',
+              trailing: TextButton(
+                onPressed: () => context.go(AppRoute.history.path),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: Text(
+                  'FULL HISTORY',
+                  style: AppTheme.hudLabel(color: Palette.amber, size: 9),
+                ),
+              ),
+            ),
             RecentList(
               entries: vm.recent,
               onRelaunch: (HistoryEntry entry) =>

@@ -35,6 +35,18 @@ class DeeplinkEntry {
 
   static final RegExp _schemePattern = RegExp(r'^[a-zA-Z][a-zA-Z0-9+.-]*://');
 
+  List<String> get destinationPages => destinationPage
+      .split(RegExp(r'\s*[,/]\s*'))
+      .map((String part) => part.trim())
+      .where((String part) => part.isNotEmpty)
+      .toList();
+
+  String get primaryDestination =>
+      destinationPages.isEmpty ? destinationPage : destinationPages.first;
+
+  int get extraDestinationCount =>
+      destinationPages.length > 1 ? destinationPages.length - 1 : 0;
+
   List<SpecParameter> get allParameters =>
       <SpecParameter>[...pathParameters, ...queryParameters];
 

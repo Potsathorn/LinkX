@@ -42,13 +42,38 @@ class EntryHeaderCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      entry.destinationPage,
-                      style: AppTheme.mono(context, size: 12.5).copyWith(
-                        fontWeight: FontWeight.w700,
-                        height: 1.3,
+                    for (int i = 0; i < entry.destinationPages.length; i++)
+                      Padding(
+                        padding: EdgeInsets.only(top: i == 0 ? 0 : 3),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            if (entry.destinationPages.length > 1)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 5, right: 7),
+                                child: Container(
+                                  width: 4,
+                                  height: 4,
+                                  decoration: const BoxDecoration(
+                                    color: Palette.greyMuted,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            Expanded(
+                              child: Text(
+                                entry.destinationPages[i],
+                                style:
+                                    AppTheme.mono(context, size: 12.5).copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 12,
@@ -64,7 +89,7 @@ class EntryHeaderCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          TerminalBlock(text: entry.pathPattern, maxLines: 4),
+          TerminalBlock(text: entry.pathPattern, maxLines: 8),
           if (entry.hasVariants) ...<Widget>[
             const SizedBox(height: 12),
             Wrap(
@@ -145,7 +170,7 @@ class _UserTypeOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color accent =
-        selected ? Palette.black : (allowed ? Palette.grey : Palette.greyFaint);
+        selected ? Palette.black : (allowed ? Palette.grey : Palette.greyMuted);
 
     return Tooltip(
       message: allowed

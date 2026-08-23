@@ -56,7 +56,7 @@ class ChannelChip extends StatelessWidget {
       };
 
   static Color colorFor(ChannelLabel label, ColorScheme scheme) =>
-      label == ChannelLabel.unreferenced ? Palette.greyFaint : Palette.grey;
+      label == ChannelLabel.unreferenced ? Palette.greyMuted : Palette.grey;
 
   @override
   Widget build(BuildContext context) {

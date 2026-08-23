@@ -35,13 +35,27 @@ class DeeplinkCard extends StatelessWidget {
                   RankBadge(rank: entry.rank),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: _HighlightedText(
-                      text: entry.destinationPage,
-                      query: highlight,
-                      style: AppTheme.mono(context, size: 12).copyWith(
-                        fontWeight: FontWeight.w700,
-                        height: 1.35,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        _HighlightedText(
+                          text: entry.primaryDestination,
+                          query: highlight,
+                          style: AppTheme.mono(context, size: 12).copyWith(
+                            fontWeight: FontWeight.w700,
+                            height: 1.35,
+                          ),
+                        ),
+                        if (entry.extraDestinationCount > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3),
+                            child: Text(
+                              '+${entry.extraDestinationCount} more '
+                              'destination${entry.extraDestinationCount == 1 ? '' : 's'}',
+                              style: AppTheme.hudLabel(size: 8.5),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   if (usageCount > 0)
@@ -56,7 +70,7 @@ class DeeplinkCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 9),
-              TerminalBlock(text: entry.pathPattern, maxLines: 2),
+              TerminalBlock(text: entry.pathPattern, maxLines: 3),
               const SizedBox(height: 9),
               Row(
                 children: <Widget>[

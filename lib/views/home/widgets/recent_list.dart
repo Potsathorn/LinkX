@@ -91,7 +91,7 @@ class _RecentTile extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       entry.url,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: AppTheme.mono(context, size: 10.5)
                           .copyWith(color: Palette.greyMuted),

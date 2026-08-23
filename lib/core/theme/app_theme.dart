@@ -94,14 +94,14 @@ class AppTheme {
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
-          side: const BorderSide(color: Palette.navyLine),
+          side: const BorderSide(color: Palette.navyEdge),
         ),
         margin: EdgeInsets.zero,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Palette.navy,
-        hintStyle: const TextStyle(color: Palette.greyFaint),
+        hintStyle: const TextStyle(color: Palette.greyMuted),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
           borderSide: const BorderSide(color: Palette.navyLine),
@@ -209,7 +209,7 @@ class AppTheme {
             size: 22,
             color: states.contains(WidgetState.selected)
                 ? Palette.amber
-                : Palette.greyFaint,
+                : Palette.greyMuted,
           ),
         ),
         labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
@@ -219,7 +219,7 @@ class AppTheme {
             letterSpacing: 1.0,
             color: states.contains(WidgetState.selected)
                 ? Palette.amber
-                : Palette.greyFaint,
+                : Palette.greyMuted,
           ),
         ),
       ),
@@ -237,7 +237,7 @@ class AppTheme {
         thumbColor: WidgetStateProperty.resolveWith<Color>(
           (Set<WidgetState> states) => states.contains(WidgetState.selected)
               ? Palette.amber
-              : Palette.greyFaint,
+              : Palette.greyMuted,
         ),
         trackColor: WidgetStateProperty.resolveWith<Color>(
           (Set<WidgetState> states) => states.contains(WidgetState.selected)
