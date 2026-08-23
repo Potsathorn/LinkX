@@ -1,4 +1,4 @@
-# LinkX Tester
+# LinkX
 
 A Flutter tool for building, validating and testing the **CardX deeplinks**
 defined in [`deeplink_spec.json`](deeplink_spec.json).
@@ -365,4 +365,6 @@ were removed.
 
 ## TODO before shipping
 
-* `applicationId` / bundle id are still `com.example.linkx_tester`.
+* `applicationId` / bundle id are `com.example.linkx` — swap the
+  `com.example` prefix for your real reverse-domain before any store or
+  enterprise distribution.

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>LinkX Tester</string>
+	<string>LinkX</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>linkx_tester</string>
+	<string>linkx</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -33,9 +33,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>LinkX Tester saves the QR codes you generate to your photo library.</string>
+	<string>LinkX saves the QR codes you generate to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>LinkX Tester needs photo library access to store generated QR codes in the "LinkX Tester" album.</string>
+	<string>LinkX needs photo library access to store generated QR codes in the "LinkX" album.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

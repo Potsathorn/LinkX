@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkx_tester/core/constants/app_config.dart';
-import 'package:linkx_tester/data/datasources/deeplink_spec_source.dart';
-import 'package:linkx_tester/data/models/deeplink_entry.dart';
+import 'package:linkx/core/constants/app_config.dart';
+import 'package:linkx/data/datasources/deeplink_spec_source.dart';
+import 'package:linkx/data/models/deeplink_entry.dart';
 
 class _FakeBundle extends CachingAssetBundle {
   _FakeBundle(this._files);

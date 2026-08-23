@@ -121,7 +121,7 @@ class _LinkXAppState extends State<LinkXApp> {
         ),
       ],
       child: MaterialApp.router(
-        title: 'LinkX Tester',
+        title: 'LinkX',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark(),
         darkTheme: AppTheme.dark(),

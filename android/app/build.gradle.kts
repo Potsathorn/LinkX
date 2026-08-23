@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.linkx_tester"
+    namespace = "com.example.linkx"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.linkx_tester"
+        applicationId = "com.example.linkx"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

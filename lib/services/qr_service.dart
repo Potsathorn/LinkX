@@ -20,7 +20,7 @@ class QrSaveResult {
 
 class QrService {
   const QrService();
-  static const String albumName = 'LinkX Tester';
+  static const String albumName = 'LinkX';
   static const double defaultExportSize = 1024;
 
   QrPainter painter(

@@ -1,4 +1,4 @@
-package com.example.linkx_tester
+package com.example.linkx
 
 import io.flutter.embedding.android.FlutterActivity
 

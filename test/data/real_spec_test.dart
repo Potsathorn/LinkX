@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkx_tester/data/models/deeplink_entry.dart';
-import 'package:linkx_tester/data/models/spec_parameter.dart';
+import 'package:linkx/data/models/deeplink_entry.dart';
+import 'package:linkx/data/models/spec_parameter.dart';
 
 import '../spec_fixture.dart';
 

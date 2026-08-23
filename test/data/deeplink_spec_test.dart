@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkx_tester/data/datasources/deeplink_spec_source.dart';
-import 'package:linkx_tester/data/models/channel_label.dart';
-import 'package:linkx_tester/data/models/deeplink_entry.dart';
-import 'package:linkx_tester/data/models/parameter_requirement.dart';
-import 'package:linkx_tester/data/models/spec_parameter.dart';
-import 'package:linkx_tester/data/models/user_type.dart';
+import 'package:linkx/data/datasources/deeplink_spec_source.dart';
+import 'package:linkx/data/models/channel_label.dart';
+import 'package:linkx/data/models/deeplink_entry.dart';
+import 'package:linkx/data/models/parameter_requirement.dart';
+import 'package:linkx/data/models/spec_parameter.dart';
+import 'package:linkx/data/models/user_type.dart';
 
 import '../spec_fixture.dart';
 

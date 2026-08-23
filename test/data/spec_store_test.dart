@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkx_tester/data/datasources/deeplink_spec_source.dart';
-import 'package:linkx_tester/data/datasources/spec_store.dart';
-import 'package:linkx_tester/services/spec_import_service.dart';
+import 'package:linkx/data/datasources/deeplink_spec_source.dart';
+import 'package:linkx/data/datasources/spec_store.dart';
+import 'package:linkx/services/spec_import_service.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 

@@ -2,21 +2,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "LinkX Tester",
+      "name": "LinkX",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "debug"
     },
     {
-      "name": "LinkX Tester (profile)",
+      "name": "LinkX (profile)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "profile"
     },
     {
-      "name": "LinkX Tester (release)",
+      "name": "LinkX (release)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",

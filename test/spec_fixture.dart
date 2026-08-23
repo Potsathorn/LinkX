@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:linkx_tester/data/datasources/deeplink_spec_source.dart';
-import 'package:linkx_tester/data/models/deeplink_entry.dart';
+import 'package:linkx/data/datasources/deeplink_spec_source.dart';
+import 'package:linkx/data/models/deeplink_entry.dart';
 
 const String kFixturePath = 'test/fixtures/sample_spec.json';
 const String kRealSpecPath = 'assets/spec/deeplink_spec.json';

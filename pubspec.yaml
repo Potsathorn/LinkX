@@ -1,4 +1,4 @@
-name: linkx_tester
+name: linkx
 description: "Build, validate and test deeplinks from a JSON spec."
 publish_to: 'none'
 

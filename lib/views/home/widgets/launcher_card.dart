@@ -81,6 +81,7 @@ class LauncherCard extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
+                flex: 2,
                 child: FilledButton.icon(
                   onPressed: enabled ? onLaunch : null,
                   icon: vm.isBusy
