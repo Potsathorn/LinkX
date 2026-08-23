@@ -43,7 +43,6 @@ class SetupView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 CornerFrame(
                   color: Palette.navyEdge,
@@ -78,22 +77,28 @@ class SetupView extends StatelessWidget {
                       ?.copyWith(color: Palette.grey, height: 1.6),
                 ),
                 const SizedBox(height: 28),
-                FilledButton.icon(
-                  onPressed: vm.isBusy ? null : () => _import(context, vm),
-                  icon: vm.isBusy
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.folder_open, size: 18),
-                  label: const Text('Choose spec file'),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: vm.isBusy ? null : () => _import(context, vm),
+                    icon: vm.isBusy
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.folder_open, size: 18),
+                    label: const Text('Choose spec file'),
+                  ),
                 ),
                 const SizedBox(height: 10),
-                OutlinedButton.icon(
-                  onPressed: vm.isBusy ? null : () => _paste(context, vm),
-                  icon: const Icon(Icons.content_paste, size: 18),
-                  label: const Text('Paste JSON'),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: vm.isBusy ? null : () => _paste(context, vm),
+                    icon: const Icon(Icons.content_paste, size: 18),
+                    label: const Text('Paste JSON'),
+                  ),
                 ),
                 const SizedBox(height: 22),
                 TextButton(
