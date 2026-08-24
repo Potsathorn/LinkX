@@ -7,6 +7,10 @@ import 'package:linkx/views/catalogue/catalogue_view.dart';
 import 'package:linkx/views/catalogue/widgets/deeplink_card.dart';
 import 'package:linkx/views/catalogue/widgets/filter_sheet.dart';
 import 'package:linkx/views/generator/generator_view.dart';
+import 'package:linkx/views/generator/widgets/entry_header_card.dart';
+import 'package:linkx/views/generator/widgets/entry_info_sheet.dart';
+import 'package:linkx/views/generator/widgets/link_preview_card.dart';
+import 'package:linkx/views/generator/widgets/onelink_sheet.dart';
 import 'package:linkx/views/history/history_view.dart';
 import 'package:linkx/views/home/home_view.dart';
 import 'package:linkx/views/spec/setup_view.dart';
@@ -246,10 +250,27 @@ void main() {
     );
   });
 
-  testWidgets('an unsupported user type is flagged in the header',
+  testWidgets('the info action opens the deeplink header in a sheet',
       (WidgetTester tester) async {
     await pumpApp(tester);
     await openEntry(tester, 'PreferenceChannelPage');
+
+    expect(find.byType(EntryHeaderCard), findsNothing);
+
+    await tester.tap(find.byTooltip('Deeplink info'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(EntryInfoSheet), findsOneWidget);
+    expect(find.byType(EntryHeaderCard), findsOneWidget);
+  });
+
+  testWidgets('an unsupported user type is flagged in the info sheet',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+    await openEntry(tester, 'PreferenceChannelPage');
+
+    await tester.tap(find.byTooltip('Deeplink info'));
+    await tester.pumpAndSettle();
 
     expect(find.text('not allowed'), findsNothing);
 
@@ -259,11 +280,35 @@ void main() {
     expect(find.text('not allowed'), findsOneWidget);
   });
 
+  testWidgets('the pinned preview carries launch, QR and share',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+    await openEntry(tester, 'PreferenceChannelPage');
+
+    final Finder preview = find.byType(LinkPreviewCard);
+    expect(preview, findsOneWidget);
+    expect(
+      find.descendant(
+          of: preview, matching: find.widgetWithText(FilledButton, 'Launch')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+          of: preview, matching: find.byTooltip('QR code for the link')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+          of: preview, matching: find.byTooltip('Share the deeplink')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('the QR route opens over the shell', (WidgetTester tester) async {
     await pumpApp(tester);
     await openEntry(tester, 'PreferenceChannelPage');
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'QR'));
+    await tester.tap(find.byTooltip('QR code for the link'));
     await tester.pumpAndSettle();
 
     expect(find.text('QR code'), findsOneWidget);
@@ -327,71 +372,34 @@ void main() {
     expect(find.byType(DeeplinkCard), findsNWidgets(3));
   });
 
-  testWidgets('the onelink card stays hidden for a non-deeplink',
-      (WidgetTester tester) async {
-    await pumpApp(tester);
-
-    expect(find.text('ONELINK'), findsOneWidget);
-    expect(
-        find.textContaining('Available once the link above'), findsOneWidget);
-    expect(find.text('SIT'), findsNothing);
-
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
-      'https://example.com/promo',
-    );
-    await tester.pumpAndSettle();
-
-    expect(
-        find.textContaining('Available once the link above'), findsOneWidget);
-    expect(find.text('SIT'), findsNothing);
-  });
-
-  testWidgets('a cardx deeplink reveals the environment gate',
-      (WidgetTester tester) async {
-    await pumpApp(tester);
-
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
-      'cardx://deeplink/inbox?folder=alpha',
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('SIT'), findsOneWidget);
-    expect(find.text('UAT'), findsOneWidget);
-    expect(find.text('PROD'), findsNothing);
-
-    expect(
-      tester
-          .widget<FilledButton>(
-              find.widgetWithText(FilledButton, 'Choose an environment'))
-          .onPressed,
-      isNull,
-    );
-
-    await tester.tap(find.text('SIT'));
-    await tester.pumpAndSettle();
-
-    expect(
-      tester
-          .widget<FilledButton>(
-              find.widgetWithText(FilledButton, 'Generate OneLink'))
-          .onPressed,
-      isNotNull,
-    );
-  });
-
-  testWidgets('the generator gates OneLink behind an enabled Launch',
+  testWidgets('the OneLink button is gated behind an enabled Launch',
       (WidgetTester tester) async {
     await pumpApp(tester);
     await openEntry(tester, 'OfferDetailPage');
 
-    expect(find.text('ONELINK'), findsOneWidget);
+    final Finder button = find.widgetWithText(OutlinedButton, 'OneLink');
+    expect(button, findsOneWidget);
     expect(
-      find.textContaining('Launch is still disabled'),
-      findsOneWidget,
+      tester.widget<OutlinedButton>(button).onPressed,
+      isNull,
       reason: 'offerCode is required, so Launch is off and so is OneLink',
     );
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Required value'),
+      'OFFER26',
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<OutlinedButton>(button).onPressed, isNotNull);
+  });
+
+  testWidgets('the OneLink button opens the generator OneLink sheet',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+    await openEntry(tester, 'OfferDetailPage');
+
+    expect(find.byType(GeneratorOneLinkSheet), findsNothing);
     expect(find.text('SIT'), findsNothing);
 
     await tester.enterText(
@@ -400,37 +408,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Launch is still disabled'), findsNothing);
+    await tester.tap(find.widgetWithText(OutlinedButton, 'OneLink'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(GeneratorOneLinkSheet), findsOneWidget);
     expect(find.text('SIT'), findsOneWidget);
     expect(find.text('UAT'), findsOneWidget);
-  });
-
-  testWidgets('home and generator keep separate OneLink state',
-      (WidgetTester tester) async {
-    await pumpApp(tester);
-
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Paste any deeplink or OneLink to test'),
-      'cardx://deeplink/inbox?folder=alpha',
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('SIT'));
-    await tester.pumpAndSettle();
-    expect(
-        find.widgetWithText(FilledButton, 'Generate OneLink'), findsOneWidget);
-
-    await openEntry(tester, 'OfferDetailPage');
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Required value'),
-      'OFFER26',
-    );
-    await tester.pumpAndSettle();
-
-    expect(
-      find.widgetWithText(FilledButton, 'Choose an environment'),
-      findsOneWidget,
-      reason: 'the generator has its own environment choice',
-    );
   });
 
   testWidgets('the history tab starts empty', (WidgetTester tester) async {

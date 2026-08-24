@@ -120,7 +120,7 @@ class EntryHeaderCard extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: <Widget>[
-              Text('TEST AS', style: AppTheme.hudLabel(size: 8.5)),
+              Text('User Type', style: AppTheme.hudLabel(size: 8.5)),
               if (!allowed) ...<Widget>[
                 const SizedBox(width: 9),
                 const Icon(Icons.block, size: 12, color: Palette.amber),

@@ -108,16 +108,6 @@ class OneLinkViewModel extends ChangeNotifier {
   }
 }
 
-class HomeOneLinkViewModel extends OneLinkViewModel {
-  HomeOneLinkViewModel({
-    required super.service,
-    required super.deeplinkRepository,
-    required super.source,
-    required super.readSource,
-    required super.readReady,
-  });
-}
-
 class GeneratorOneLinkViewModel extends OneLinkViewModel {
   GeneratorOneLinkViewModel({
     required super.service,

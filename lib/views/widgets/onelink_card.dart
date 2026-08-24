@@ -101,19 +101,18 @@ class OneLinkCard extends StatelessWidget {
                 text: vm.error!,
                 tone: Palette.amber),
           ],
-          if (vm.generated != null) ...<Widget>[
-            const SizedBox(height: 18),
-            const Divider(height: 1),
-            const SizedBox(height: 16),
-            _Result(
-              link: vm.generated!,
-              reused: vm.wasReused,
-              onCopy: onCopy,
-              onLaunch: onLaunch,
-              onShare: onShare,
-              onQr: onQr,
-            ),
-          ],
+          const SizedBox(height: 18),
+          const Divider(height: 1),
+          const SizedBox(height: 16),
+          _Result(
+            link: vm.generated,
+            env: vm.env,
+            reused: vm.wasReused,
+            onCopy: onCopy,
+            onLaunch: onLaunch,
+            onShare: onShare,
+            onQr: onQr,
+          ),
         ],
       ),
     );
@@ -169,6 +168,7 @@ class _EnvOption extends StatelessWidget {
 class _Result extends StatelessWidget {
   const _Result({
     required this.link,
+    required this.env,
     required this.reused,
     required this.onCopy,
     required this.onLaunch,
@@ -176,15 +176,21 @@ class _Result extends StatelessWidget {
     required this.onQr,
   });
 
-  final GeneratedOneLink link;
+  final GeneratedOneLink? link;
+  final String? env;
   final bool reused;
   final VoidCallback onCopy;
   final VoidCallback onLaunch;
   final VoidCallback onShare;
   final VoidCallback onQr;
 
+  bool get _ready => link != null;
+
   @override
   Widget build(BuildContext context) {
+    final Color badgeColor = _ready ? Palette.amber : Palette.navyEdge;
+    final String badgeLabel = link?.env ?? env ?? '--';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -193,16 +199,23 @@ class _Result extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
               decoration: BoxDecoration(
-                color: Palette.amber,
+                color: badgeColor,
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(link.env,
-                  style: AppTheme.hudLabel(color: Palette.black, size: 9)),
+              child: Text(
+                badgeLabel,
+                style: AppTheme.hudLabel(
+                  color: _ready ? Palette.black : Palette.grey,
+                  size: 9,
+                ),
+              ),
             ),
             const SizedBox(width: 9),
             Expanded(
               child: Text(
-                "${reused ? 'Reused from cache' : 'Generated now'}\n${DateFormatter.relative(link.createdAt)}",
+                _ready
+                    ? "${reused ? 'Reused from cache' : 'Generated now'}\n${DateFormatter.relative(link!.createdAt)}"
+                    : 'Not generated yet\n--',
                 style: AppTheme.hudLabel(size: 8.5),
               ),
             ),
@@ -210,23 +223,28 @@ class _Result extends StatelessWidget {
               visualDensity: VisualDensity.compact,
               tooltip: 'Copy OneLink',
               icon: const Icon(Icons.copy_all_outlined, size: 17),
-              onPressed: onCopy,
+              onPressed: _ready ? onCopy : null,
             ),
             IconButton(
               visualDensity: VisualDensity.compact,
               tooltip: 'Share OneLink',
               icon: const Icon(Icons.share, size: 17),
-              onPressed: onShare,
+              onPressed: _ready ? onShare : null,
             ),
           ],
         ),
-        TerminalBlock(text: link.url, maxLines: 4, prefix: '🔗'),
+        TerminalBlock(
+          text: link?.url ?? 'Generate to see the OneLink here',
+          maxLines: 2,
+          minLines: 2,
+          prefix: '🔗',
+        ),
         const SizedBox(height: 14),
         Row(
           children: <Widget>[
             Expanded(
               child: FilledButton.icon(
-                onPressed: onLaunch,
+                onPressed: _ready ? onLaunch : null,
                 icon: const Icon(Icons.rocket_launch_outlined, size: 18),
                 label: const Text('Launch'),
               ),
@@ -234,7 +252,7 @@ class _Result extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: OutlinedButton(
-                onPressed: onQr,
+                onPressed: _ready ? onQr : null,
                 child: const Text('QR'),
               ),
             ),

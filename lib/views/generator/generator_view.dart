@@ -6,19 +6,12 @@ import '../../core/router/app_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/action_result.dart';
 import '../../data/models/deeplink_entry.dart';
-import '../../data/models/generated_link.dart';
 import '../../data/models/link_parameter.dart';
-import '../../data/models/onelink_config.dart';
-import '../../services/link_action_runner.dart';
-import '../../services/onelink_service.dart';
 import '../../viewmodels/generator_viewmodel.dart';
 import '../../viewmodels/onelink_viewmodel.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/empty_state.dart';
-import '../widgets/onelink_card.dart';
 import '../widgets/section_header.dart';
-import '../widgets/share_origin.dart';
-import 'widgets/entry_header_card.dart';
 import 'widgets/link_preview_card.dart';
 import 'widgets/parameter_field.dart';
 
@@ -37,6 +30,13 @@ class GeneratorView extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
         actions: <Widget>[
+          IconButton(
+            tooltip: 'Deeplink info',
+            icon: const Icon(Icons.info_outline),
+            onPressed: entry == null
+                ? null
+                : () => context.push(AppRoute.entryInfo.path),
+          ),
           IconButton(
             tooltip: 'Clear the selection',
             icon: const Icon(Icons.restart_alt),
@@ -57,7 +57,6 @@ class GeneratorView extends StatelessWidget {
               ),
             )
           : _GeneratorForm(vm: vm, entry: entry),
-      bottomNavigationBar: entry == null ? null : _ActionBar(vm: vm),
     );
   }
 }
@@ -68,53 +67,82 @@ class _GeneratorForm extends StatelessWidget {
   final GeneratorViewModel vm;
   final DeeplinkEntry entry;
 
+  Future<void> _run(
+    BuildContext context,
+    Future<ActionResult> Function() action,
+  ) async {
+    final ActionResult result = await action();
+    if (context.mounted) showActionResult(context, result);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+    final GeneratorOneLinkViewModel oneLink =
+        context.watch<GeneratorOneLinkViewModel>();
+
+    return Column(
       children: <Widget>[
-        EntryHeaderCard(
-          entry: entry,
-          variant: vm.variant,
-          testedUserType: vm.testedUserType,
-          onVariantSelected: vm.selectVariant,
-          onUserTypeSelected: vm.setTestedUserType,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.42,
+            ),
+            child: LinkPreviewCard(
+              url: vm.url,
+              validation: vm.validation,
+              isBusy: vm.isBusy,
+              onCopy: () => _run(context, vm.copyToClipboard),
+              onShare: (Rect? origin) =>
+                  _run(context, () => vm.shareUrl(origin: origin)),
+              onLaunch: () => _run(context, vm.launch),
+              onQr: () => context.push(AppRoute.qr.path, extra: vm.link),
+              onOneLink: oneLink.isConfigured
+                  ? () => context.push(AppRoute.oneLink.path)
+                  : null,
+              isOneLinkEnabled: oneLink.isEligible,
+            ),
+          ),
         ),
-        const SizedBox(height: 16),
-        if (!entry.hasParameters)
-          const _NoParametersHint()
-        else ...<Widget>[
-          _ParameterGroup(
-            title: 'Required',
-            accent: Palette.amber,
-            parameters: vm.requiredParameters,
-            vm: vm,
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Palette.navy.withValues(alpha: 0.7),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(30),
+              ),
+            ),
+            child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              children: <Widget>[
+                if (!entry.hasParameters)
+                  const _NoParametersHint()
+                else ...<Widget>[
+                  _ParameterGroup(
+                    title: 'Required',
+                    accent: Palette.amber,
+                    parameters: vm.requiredParameters,
+                    vm: vm,
+                  ),
+                  _ParameterGroup(
+                    title: 'Conditional',
+                    accent: Palette.amber,
+                    parameters: vm.conditionalParameters,
+                    vm: vm,
+                  ),
+                  _ParameterGroup(
+                    title: 'Optional',
+                    accent: Palette.greyMuted,
+                    parameters: vm.optionalParameters,
+                    vm: vm,
+                  ),
+                ],
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
-          _ParameterGroup(
-            title: 'Conditional',
-            accent: Palette.amber,
-            parameters: vm.conditionalParameters,
-            vm: vm,
-          ),
-          _ParameterGroup(
-            title: 'Optional',
-            accent: Palette.greyMuted,
-            parameters: vm.optionalParameters,
-            vm: vm,
-          ),
-        ],
-        const SizedBox(height: 8),
-        LinkPreviewCard(
-          url: vm.url,
-          validation: vm.validation,
-          onCopy: () async {
-            final ActionResult result = await vm.copyToClipboard();
-            if (context.mounted) showActionResult(context, result);
-          },
         ),
-        const SizedBox(height: 16),
-        const _GeneratorOneLink(),
       ],
     );
   }
@@ -189,146 +217,6 @@ class _NoParametersHint extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ActionBar extends StatelessWidget {
-  const _ActionBar({required this.vm});
-
-  final GeneratorViewModel vm;
-
-  @override
-  Widget build(BuildContext context) {
-    final bool enabled = vm.hasLink && !vm.isBusy;
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: Palette.black,
-        border: Border(top: BorderSide(color: Palette.navyEdge)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                flex: 3,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: enabled
-                        ? AppTheme.glow(Palette.amber, blur: 18, opacity: 0.4)
-                        : null,
-                  ),
-                  child: FilledButton.icon(
-                    onPressed: enabled
-                        ? () async {
-                            final ActionResult result = await vm.launch();
-                            if (context.mounted) {
-                              showActionResult(context, result);
-                            }
-                          }
-                        : null,
-                    icon: vm.isBusy
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.rocket_launch_outlined, size: 18),
-                    label: const Text('Launch'),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 2,
-                child: OutlinedButton.icon(
-                  onPressed: enabled
-                      ? () => context.push(AppRoute.qr.path, extra: vm.link)
-                      : null,
-                  icon: const Icon(Icons.qr_code_2, size: 18),
-                  label: const Text('QR'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Builder(
-                builder: (BuildContext buttonContext) => IconButton.filledTonal(
-                  tooltip: 'Share the deeplink',
-                  onPressed: enabled
-                      ? () async {
-                          final ActionResult result = await vm.shareUrl(
-                            origin: shareOriginOf(buttonContext),
-                          );
-                          if (context.mounted) {
-                            showActionResult(context, result);
-                          }
-                        }
-                      : null,
-                  icon: const Icon(Icons.ios_share, size: 20),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GeneratorOneLink extends StatelessWidget {
-  const _GeneratorOneLink();
-
-  Future<void> _run(
-    BuildContext context,
-    Future<ActionResult> Function(GeneratedLink link) action,
-  ) async {
-    final GeneratedOneLink? generated =
-        context.read<GeneratorOneLinkViewModel>().generated;
-    if (generated == null) return;
-
-    final ActionResult result =
-        await action(GeneratedLink.adHoc(generated.url));
-    if (context.mounted) showActionResult(context, result);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final GeneratorOneLinkViewModel vm =
-        context.watch<GeneratorOneLinkViewModel>();
-
-    return Builder(
-      builder: (BuildContext buttonContext) => OneLinkCard(
-        vm: vm,
-        notReadyMessage:
-            'Fill in every required parameter first — Launch is still disabled.',
-        onGenerate: () async {
-          final OneLinkOutcome outcome = await vm.generate();
-          if (!context.mounted || outcome.isSuccess) return;
-          showActionResult(context, ActionResult.error(outcome.message));
-        },
-        onCopy: () => _run(context,
-            (GeneratedLink l) => context.read<LinkActionRunner>().copy(l)),
-        onLaunch: () => _run(context,
-            (GeneratedLink l) => context.read<LinkActionRunner>().launch(l)),
-        onShare: () => _run(
-          context,
-          (GeneratedLink l) => context.read<LinkActionRunner>().shareUrl(
-                l,
-                origin: shareOriginOf(buttonContext),
-              ),
-        ),
-        onQr: () {
-          final GeneratedOneLink? generated = vm.generated;
-          if (generated == null) return;
-          context.push(
-            AppRoute.qr.path,
-            extra: GeneratedLink.adHoc(generated.url),
-          );
-        },
       ),
     );
   }

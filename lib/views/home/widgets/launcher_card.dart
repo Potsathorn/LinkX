@@ -75,8 +75,6 @@ class LauncherCard extends StatelessWidget {
               hintText: 'Paste any deeplink or OneLink to test',
               errorText: vm.validationMessage,
               errorMaxLines: 2,
-           
-              
             ),
           ),
           const SizedBox(height: 14),

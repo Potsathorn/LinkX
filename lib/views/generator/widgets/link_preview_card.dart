@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../services/link_builder_service.dart';
+import '../../widgets/share_origin.dart';
 
 class LinkPreviewCard extends StatelessWidget {
   const LinkPreviewCard({
@@ -9,16 +10,30 @@ class LinkPreviewCard extends StatelessWidget {
     required this.url,
     required this.validation,
     required this.onCopy,
+    required this.onShare,
+    required this.onLaunch,
+    required this.onQr,
+    this.onOneLink,
+    this.isOneLinkEnabled = false,
+    this.isBusy = false,
   });
 
   final String url;
   final LinkValidation validation;
   final VoidCallback onCopy;
+  final void Function(Rect? origin) onShare;
+  final VoidCallback onLaunch;
+  final VoidCallback onQr;
+  final VoidCallback? onOneLink;
+  final bool isOneLinkEnabled;
+  final bool isBusy;
+
+  bool get _isValid => validation.isValid && url.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
-    final bool isValid = validation.isValid && url.isNotEmpty;
-    final Color accent = isValid ? Palette.white : Palette.amber;
+    final Color accent = _isValid ? Palette.white : Palette.amber;
+    final bool enabled = _isValid && !isBusy;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -32,73 +47,148 @@ class LinkPreviewCard extends StatelessWidget {
           border: Border.all(color: accent.withValues(alpha: 0.45)),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
-              padding: const EdgeInsets.fromLTRB(12, 9, 6, 9),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.07),
-                border: Border(
-                  bottom: BorderSide(color: accent.withValues(alpha: 0.3)),
+            _header(accent),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    if (url.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 11, vertical: 11),
+                        decoration: BoxDecoration(
+                          color: Palette.black,
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Palette.navyLine),
+                        ),
+                        child: SelectableText.rich(
+                          _colorize(context, url),
+                          style: AppTheme.mono(context, size: 12),
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    for (final String error in validation.errors)
+                      _Message(
+                          icon: Icons.close, text: error, color: Palette.amber),
+                    for (final String warning in validation.warnings)
+                      _Message(
+                        icon: Icons.warning_amber_rounded,
+                        text: warning,
+                        color: Palette.grey,
+                      ),
+                  ],
                 ),
-              ),
-              child: Row(
-                children: <Widget>[
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                      color: accent,
-                      shape: BoxShape.circle,
-                      boxShadow: AppTheme.glow(accent, blur: 8, opacity: 0.9),
-                    ),
-                  ),
-                  const SizedBox(width: 9),
-                  Expanded(
-                    child: Text(
-                      isValid ? 'Generated link' : 'Link not ready',
-                      style: AppTheme.hudLabel(color: accent, size: 10.5),
-                    ),
-                  ),
-                  if (url.isNotEmpty)
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      tooltip: 'Copy link (logged to history)',
-                      icon: const Icon(Icons.copy_all_outlined, size: 17),
-                      color: accent,
-                      onPressed: onCopy,
-                    ),
-                ],
               ),
             ),
-            if (url.isNotEmpty)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 11, vertical: 11),
-                decoration: BoxDecoration(
-                  color: Palette.black,
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: Palette.navyLine),
-                ),
-                child: SelectableText.rich(
-                  _colorize(context, url),
-                  style: AppTheme.mono(context, size: 12),
-                ),
-              ),
-            const SizedBox(height: 8),
-            for (final String error in validation.errors)
-              _Message(icon: Icons.close, text: error, color: Palette.amber),
-            for (final String warning in validation.warnings)
-              _Message(
-                icon: Icons.warning_amber_rounded,
-                text: warning,
-                color: Palette.grey,
-              ),
-            const SizedBox(height: 6),
+            _actions(enabled),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _header(Color accent) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 9, 6, 9),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.07),
+        border: Border(
+          bottom: BorderSide(color: accent.withValues(alpha: 0.3)),
+        ),
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: accent,
+              shape: BoxShape.circle,
+              boxShadow: AppTheme.glow(accent, blur: 8, opacity: 0.9),
+            ),
+          ),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Text(
+              _isValid ? 'Generated link' : 'Link not ready',
+              style: AppTheme.hudLabel(color: accent, size: 10.5),
+            ),
+          ),
+          if (url.isNotEmpty)
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Copy link (logged to history)',
+              icon: const Icon(Icons.copy_all_outlined, size: 17),
+              color: accent,
+              onPressed: onCopy,
+            ),
+          if (_isValid)
+            Builder(
+              builder: (BuildContext buttonContext) => IconButton(
+                visualDensity: VisualDensity.compact,
+                tooltip: 'Share the deeplink',
+                icon: const Icon(Icons.share, size: 17),
+                color: accent,
+                onPressed:
+                    isBusy ? null : () => onShare(shareOriginOf(buttonContext)),
+              ),
+            ),
+          if (_isValid)
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'QR code for the link',
+              icon: const Icon(Icons.qr_code_2, size: 17),
+              color: accent,
+              onPressed: onQr,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _actions(bool enabled) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                boxShadow: enabled
+                    ? AppTheme.glow(Palette.amber, blur: 18, opacity: 0.4)
+                    : null,
+              ),
+              child: FilledButton.icon(
+                onPressed: enabled ? onLaunch : null,
+                icon: isBusy
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.rocket_launch_outlined, size: 18),
+                label: const Text('Launch'),
+              ),
+            ),
+          ),
+          if (onOneLink != null) ...<Widget>[
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: isOneLinkEnabled && !isBusy ? onOneLink : null,
+                icon: const Icon(Icons.hub_outlined, size: 18),
+                label: const Text('OneLink'),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

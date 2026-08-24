@@ -228,14 +228,25 @@ class TerminalBlock extends StatelessWidget {
     super.key,
     required this.text,
     this.maxLines = 3,
+    this.minLines = 1,
     this.prefix = '❯',
     this.color,
   });
 
   final String text;
   final int maxLines;
+  final int minLines;
   final String prefix;
   final Color? color;
+
+  double _reservedHeight(BuildContext context) {
+    if (minLines <= 1) return 0;
+
+    final TextStyle style = AppTheme.mono(context, size: 11);
+    final double scaled =
+        MediaQuery.textScalerOf(context).scale(style.fontSize ?? 11);
+    return scaled * (style.height ?? 1) * minLines;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -257,12 +268,15 @@ class TerminalBlock extends StatelessWidget {
           ),
           const SizedBox(width: 7),
           Expanded(
-            child: Text(
-              text,
-              maxLines: maxLines,
-              overflow: TextOverflow.ellipsis,
-              style: AppTheme.mono(context, size: 11)
-                  .copyWith(color: color ?? Palette.grey),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: _reservedHeight(context)),
+              child: Text(
+                text,
+                maxLines: maxLines,
+                overflow: TextOverflow.ellipsis,
+                style: AppTheme.mono(context, size: 11)
+                    .copyWith(color: color ?? Palette.grey),
+              ),
             ),
           ),
         ],

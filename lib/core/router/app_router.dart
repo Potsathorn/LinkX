@@ -6,6 +6,8 @@ import '../../data/models/generated_link.dart';
 import '../../viewmodels/generator_viewmodel.dart';
 
 import '../../views/generator/generator_view.dart';
+import '../../views/generator/widgets/entry_info_sheet.dart';
+import '../../views/generator/widgets/onelink_sheet.dart';
 import '../../views/history/history_view.dart';
 import '../../views/home/home_view.dart';
 import '../../views/qr/qr_view.dart';
@@ -25,7 +27,9 @@ enum AppRoute {
   generator('/generator', 'Generator'),
   history('/history', 'History'),
   qr('/qr', 'QR code'),
-  filters('/filters', 'Filter');
+  filters('/filters', 'Filter'),
+  entryInfo('/entry-info', 'Deeplink info'),
+  oneLink('/onelink', 'OneLink');
 
   const AppRoute(this.path, this.label);
   final String path;
@@ -113,6 +117,20 @@ class AppRouter {
           parentNavigatorKey: rootNavigatorKey,
           pageBuilder: (BuildContext context, GoRouterState state) =>
               const ModalSheetPage<void>(child: SpecSheet()),
+        ),
+        GoRoute(
+          path: AppRoute.oneLink.path,
+          name: AppRoute.oneLink.name,
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (BuildContext context, GoRouterState state) =>
+              const ModalSheetPage<void>(child: GeneratorOneLinkSheet()),
+        ),
+        GoRoute(
+          path: AppRoute.entryInfo.path,
+          name: AppRoute.entryInfo.name,
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (BuildContext context, GoRouterState state) =>
+              const ModalSheetPage<void>(child: EntryInfoSheet()),
         ),
         GoRoute(
           path: AppRoute.filters.path,

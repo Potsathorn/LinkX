@@ -123,18 +123,6 @@ class _LinkXAppState extends State<LinkXApp> {
           update: (_, OneLinkGateway gateway, OneLinkRepository repo, __) =>
               OneLinkService(gateway: gateway, repository: repo),
         ),
-        ChangeNotifierProvider<HomeOneLinkViewModel>(
-          create: (BuildContext c) {
-            final HomeViewModel home = c.read<HomeViewModel>();
-            return HomeOneLinkViewModel(
-              service: c.read<OneLinkService>(),
-              deeplinkRepository: c.read<DeeplinkRepository>(),
-              source: home.linkController,
-              readSource: () => home.linkController.text,
-              readReady: () => home.isValid,
-            );
-          },
-        ),
         ChangeNotifierProvider<GeneratorViewModel>(
           create: (BuildContext c) => GeneratorViewModel(
             formService: c.read<DeeplinkFormService>(),
