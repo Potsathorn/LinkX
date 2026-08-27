@@ -304,6 +304,41 @@ void main() {
     );
   });
 
+  testWidgets('the link can be hand-edited and reverted',
+      (WidgetTester tester) async {
+    await pumpApp(tester);
+    await openEntry(tester, 'PreferenceChannelPage');
+
+    final String generated = find.byType(SelectableText).evaluate().isEmpty
+        ? ''
+        : (tester.widget<SelectableText>(find.byType(SelectableText).first))
+            .textSpan!
+            .toPlainText();
+    expect(generated, startsWith('cardx://deeplink/'));
+
+    await tester.tap(find.byTooltip('Edit the link'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byType(TextField).last,
+      'cardx://deeplink/preferences?hand=edited',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Revert to the generated link'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Revert to the generated link'));
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('Revert to the generated link'), findsNothing);
+    expect(
+      (tester.widget<SelectableText>(find.byType(SelectableText).first))
+          .textSpan!
+          .toPlainText(),
+      generated,
+    );
+  });
+
   testWidgets('the QR route opens over the shell', (WidgetTester tester) async {
     await pumpApp(tester);
     await openEntry(tester, 'PreferenceChannelPage');

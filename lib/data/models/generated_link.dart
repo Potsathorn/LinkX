@@ -37,6 +37,16 @@ class GeneratedLink {
 
   bool get isAdHoc => entryId.isEmpty;
 
+  GeneratedLink withUrl(String value) => GeneratedLink(
+        url: value.trim(),
+        entryId: entryId,
+        destinationPage: destinationPage,
+        rank: rank,
+        pathPattern: pathPattern,
+        parameters: parameters,
+        testedUserType: testedUserType,
+      );
+
   Map<String, String> get appliedParameters => <String, String>{
         for (final LinkParameter p in parameters)
           if (p.isIncluded) p.name: p.trimmedValue,

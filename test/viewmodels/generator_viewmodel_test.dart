@@ -272,4 +272,73 @@ void main() {
       expect(catalogue.usageCount(entry.id), 1);
     });
   });
+
+  group('hand-edited url', () {
+    test('an edit overrides the generated url and drives the actions', () {
+      vm.loadEntry(entryByPattern('/inbox?folder='));
+      vm.updateParameter('folder', 'alpha');
+      final String generated = vm.url;
+
+      vm.editUrl('cardx://deeplink/inbox?folder=zeta&extra=1');
+
+      expect(vm.isUrlEdited, isTrue);
+      expect(vm.url, 'cardx://deeplink/inbox?folder=zeta&extra=1');
+      expect(vm.link!.url, vm.url);
+      expect(vm.generatedUrl, generated);
+      expect(vm.hasLink, isTrue);
+    });
+
+    test('an edit is dropped as soon as a parameter changes', () {
+      vm.loadEntry(entryByPattern('/inbox?folder='));
+      vm.updateParameter('folder', 'alpha');
+      vm.editUrl('cardx://deeplink/other');
+
+      vm.updateParameter('folder', 'beta');
+
+      expect(vm.isUrlEdited, isFalse);
+      expect(vm.url, contains('folder=beta'));
+    });
+
+    test('revert restores the generated url', () {
+      vm.loadEntry(entryByPattern('/inbox?folder='));
+      vm.updateParameter('folder', 'alpha');
+      final String generated = vm.url;
+
+      vm.editUrl('cardx://deeplink/other');
+      vm.revertUrl();
+
+      expect(vm.isUrlEdited, isFalse);
+      expect(vm.url, generated);
+    });
+
+    test('typing the generated url back is not treated as an edit', () {
+      vm.loadEntry(entryByPattern('/inbox?folder='));
+      vm.updateParameter('folder', 'alpha');
+
+      vm.editUrl(vm.url);
+
+      expect(vm.isUrlEdited, isFalse);
+    });
+
+    test('an edit bypasses the unfilled-parameter block', () {
+      vm.loadEntry(entryByPattern('/inbox?folder='));
+      expect(vm.hasLink, isFalse);
+
+      vm.editUrl('cardx://deeplink/inbox?folder=alpha');
+
+      expect(vm.hasLink, isTrue);
+      expect(
+        vm.validation.warnings.any((String w) => w.contains('Hand-edited')),
+        isTrue,
+      );
+    });
+
+    test('an edit without a scheme is rejected', () {
+      vm.loadEntry(entryByPattern('/inbox?folder='));
+      vm.editUrl('deeplink/inbox');
+
+      expect(vm.hasLink, isFalse);
+      expect(vm.validation.errors.single, contains('scheme'));
+    });
+  });
 }

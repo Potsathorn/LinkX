@@ -92,6 +92,9 @@ class _GeneratorForm extends StatelessWidget {
               url: vm.url,
               validation: vm.validation,
               isBusy: vm.isBusy,
+              onUrlChanged: vm.editUrl,
+              onUrlRevert: vm.revertUrl,
+              isUrlEdited: vm.isUrlEdited,
               onCopy: () => _run(context, vm.copyToClipboard),
               onShare: (Rect? origin) =>
                   _run(context, () => vm.shareUrl(origin: origin)),

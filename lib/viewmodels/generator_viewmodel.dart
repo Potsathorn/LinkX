@@ -40,6 +40,7 @@ class GeneratorViewModel extends ChangeNotifier {
   List<LinkParameter> _parameters = <LinkParameter>[];
   UserType? _testedUserType;
   GeneratedLink? _link;
+  String? _urlOverride;
   LinkValidation _validation = LinkValidation.valid;
   bool _isBusy = false;
 
@@ -48,13 +49,23 @@ class GeneratorViewModel extends ChangeNotifier {
   List<LinkParameter> get parameters =>
       List<LinkParameter>.unmodifiable(_parameters);
   UserType? get testedUserType => _testedUserType;
-  LinkValidation get validation => _validation;
   bool get isBusy => _isBusy;
-  GeneratedLink? get link => _link;
-  String get url => _link?.url ?? '';
+
+  bool get isUrlEdited => _urlOverride != null;
+  String get generatedUrl => _link?.url ?? '';
+  String get url => _urlOverride ?? generatedUrl;
+
+  LinkValidation get validation =>
+      _urlOverride == null ? _validation : _builder.validateUrl(_urlOverride!);
+
+  GeneratedLink? get link {
+    final GeneratedLink? base = _link;
+    if (base == null || _urlOverride == null) return base;
+    return base.withUrl(_urlOverride!);
+  }
 
   bool get hasEntry => _entry != null;
-  bool get hasLink => url.isNotEmpty && _validation.isValid;
+  bool get hasLink => url.isNotEmpty && validation.isValid;
 
   bool get isUserTypeAllowed =>
       _entry == null ||
@@ -117,6 +128,24 @@ class GeneratorViewModel extends ChangeNotifier {
     _updateWhere(name, (LinkParameter p) => p.copyWith(value: ''));
   }
 
+  void editUrl(String value) {
+    final String trimmed = value.trim();
+    if (trimmed == generatedUrl) {
+      revertUrl();
+      return;
+    }
+    if (_urlOverride == trimmed) return;
+
+    _urlOverride = trimmed;
+    notifyListeners();
+  }
+
+  void revertUrl() {
+    if (_urlOverride == null) return;
+    _urlOverride = null;
+    notifyListeners();
+  }
+
   bool loadHistoryEntry(HistoryEntry historyEntry) {
     final DeeplinkEntry? entry =
         _deeplinkRepository.byId(historyEntry.link.entryId);
@@ -142,6 +171,7 @@ class GeneratorViewModel extends ChangeNotifier {
     _parameters = <LinkParameter>[];
     _testedUserType = null;
     _link = null;
+    _urlOverride = null;
     _validation = LinkValidation.valid;
     notifyListeners();
   }
@@ -160,6 +190,8 @@ class GeneratorViewModel extends ChangeNotifier {
   }
 
   void _recompute() {
+    _urlOverride = null;
+
     final DeeplinkEntry? entry = _entry;
     if (entry == null) {
       _link = null;

@@ -4,7 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../services/link_builder_service.dart';
 import '../../widgets/share_origin.dart';
 
-class LinkPreviewCard extends StatelessWidget {
+class LinkPreviewCard extends StatefulWidget {
   const LinkPreviewCard({
     super.key,
     required this.url,
@@ -14,6 +14,9 @@ class LinkPreviewCard extends StatelessWidget {
     required this.onLaunch,
     required this.onQr,
     this.onOneLink,
+    required this.onUrlChanged,
+    required this.onUrlRevert,
+    this.isUrlEdited = false,
     this.isOneLinkEnabled = false,
     this.isBusy = false,
   });
@@ -25,10 +28,60 @@ class LinkPreviewCard extends StatelessWidget {
   final VoidCallback onLaunch;
   final VoidCallback onQr;
   final VoidCallback? onOneLink;
+  final ValueChanged<String> onUrlChanged;
+  final VoidCallback onUrlRevert;
+  final bool isUrlEdited;
   final bool isOneLinkEnabled;
   final bool isBusy;
 
+  @override
+  State<LinkPreviewCard> createState() => _LinkPreviewCardState();
+}
+
+class _LinkPreviewCardState extends State<LinkPreviewCard> {
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  bool _editing = false;
+
+  String get url => widget.url;
+  LinkValidation get validation => widget.validation;
+  bool get isBusy => widget.isBusy;
+  VoidCallback get onCopy => widget.onCopy;
+  void Function(Rect? origin) get onShare => widget.onShare;
+  VoidCallback get onLaunch => widget.onLaunch;
+  VoidCallback get onQr => widget.onQr;
+  VoidCallback? get onOneLink => widget.onOneLink;
+  bool get isOneLinkEnabled => widget.isOneLinkEnabled;
+
   bool get _isValid => validation.isValid && url.isNotEmpty;
+
+  @override
+  void didUpdateWidget(covariant LinkPreviewCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_editing && widget.url.trim() != _controller.text.trim()) {
+      _controller.value = TextEditingValue(
+        text: widget.url,
+        selection: TextSelection.collapsed(offset: widget.url.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _toggleEditing() {
+    setState(() {
+      _editing = !_editing;
+      if (_editing) {
+        _controller.text = widget.url;
+        _focusNode.requestFocus();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +109,7 @@ class LinkPreviewCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    if (url.isNotEmpty)
+                    if (url.isNotEmpty || _editing)
                       Container(
                         width: double.infinity,
                         margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
@@ -65,12 +118,34 @@ class LinkPreviewCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Palette.black,
                           borderRadius: BorderRadius.circular(5),
-                          border: Border.all(color: Palette.navyLine),
+                          border: Border.all(
+                            color: _editing ? Palette.amber : Palette.navyLine,
+                          ),
                         ),
-                        child: SelectableText.rich(
-                          _colorize(context, url),
-                          style: AppTheme.mono(context, size: 12),
-                        ),
+                        child: _editing
+                            ? TextField(
+                                controller: _controller,
+                                focusNode: _focusNode,
+                                onChanged: widget.onUrlChanged,
+                                maxLines: null,
+                                keyboardType: TextInputType.url,
+                                autocorrect: false,
+                                enableSuggestions: false,
+                                style: AppTheme.mono(context, size: 12),
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  filled: false,
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                  hintText: 'cardx://deeplink/...',
+                                ),
+                              )
+                            : SelectableText.rich(
+                                _colorize(context, url),
+                                style: AppTheme.mono(context, size: 12),
+                              ),
                       ),
                     const SizedBox(height: 8),
                     for (final String error in validation.errors)
@@ -147,6 +222,24 @@ class LinkPreviewCard extends StatelessWidget {
               color: accent,
               onPressed: onQr,
             ),
+          if (widget.isUrlEdited)
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Revert to the generated link',
+              icon: const Icon(Icons.undo, size: 17),
+              color: Palette.amber,
+              onPressed: () {
+                widget.onUrlRevert();
+                setState(() => _editing = false);
+              },
+            ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            tooltip: _editing ? 'Done editing' : 'Edit the link',
+            icon: Icon(_editing ? Icons.check : Icons.edit_outlined, size: 17),
+            color: _editing ? Palette.amber : accent,
+            onPressed: _toggleEditing,
+          ),
         ],
       ),
     );

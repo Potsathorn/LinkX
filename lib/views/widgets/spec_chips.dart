@@ -245,7 +245,8 @@ class TerminalBlock extends StatelessWidget {
     final TextStyle style = AppTheme.mono(context, size: 11);
     final double scaled =
         MediaQuery.textScalerOf(context).scale(style.fontSize ?? 11);
-    return scaled * (style.height ?? 1) * minLines;
+    final double line = (scaled * (style.height ?? 1)).ceilToDouble();
+    return line * minLines;
   }
 
   @override

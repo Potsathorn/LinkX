@@ -28,6 +28,34 @@ class LinkBuilderService {
 
   static final RegExp _tokenPattern = RegExp(r'\{([^{}]+)\}');
 
+  static final RegExp _schemePattern = RegExp(r'^[a-zA-Z][a-zA-Z0-9+.\-]*:');
+
+  LinkValidation validateUrl(String url) {
+    final String trimmed = url.trim();
+
+    if (trimmed.isEmpty) {
+      return const LinkValidation(
+        errors: <String>['The link is empty.'],
+      );
+    }
+    if (!_schemePattern.hasMatch(trimmed)) {
+      return const LinkValidation(
+        errors: <String>['Start the link with a scheme, e.g. cardx://'],
+      );
+    }
+
+    final List<String> warnings = <String>[
+      'Hand-edited link — the parameters below no longer describe it.',
+    ];
+    if (trimmed.contains(' ')) {
+      warnings.add('The link contains a space.');
+    }
+    if (_tokenPattern.hasMatch(trimmed)) {
+      warnings.add('The link still contains an unfilled {token}.');
+    }
+    return LinkValidation(warnings: warnings);
+  }
+
   GeneratedLink build({
     required DeeplinkEntry entry,
     required String variant,
